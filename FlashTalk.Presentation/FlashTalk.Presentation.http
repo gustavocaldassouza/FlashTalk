@@ -1,0 +1,6 @@
+@FlashTalk.Presentation_HostAddress = http://localhost:5175
+
+GET {{FlashTalk.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

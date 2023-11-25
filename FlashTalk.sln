@@ -3,6 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashTalk.Presentation", "FlashTalk.Presentation\FlashTalk.Presentation.csproj", "{D28483BA-4B92-42A5-B641-9B733C3E6A7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashTalk.Domain", "FlashTalk.Domain\FlashTalk.Domain.csproj", "{07C8142E-7318-4CD9-81DB-45AFE44C49CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashTalk.Application", "FlashTalk.Application\FlashTalk.Application.csproj", "{2AB84340-A1EC-4DA8-9506-CB9A08EF2B73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashTalk.Infrastructure", "FlashTalk.Infrastructure\FlashTalk.Infrastructure.csproj", "{163597E0-C42E-4364-9299-C5DEBB9D00A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -10,5 +18,23 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D28483BA-4B92-42A5-B641-9B733C3E6A7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D28483BA-4B92-42A5-B641-9B733C3E6A7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D28483BA-4B92-42A5-B641-9B733C3E6A7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D28483BA-4B92-42A5-B641-9B733C3E6A7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07C8142E-7318-4CD9-81DB-45AFE44C49CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07C8142E-7318-4CD9-81DB-45AFE44C49CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07C8142E-7318-4CD9-81DB-45AFE44C49CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07C8142E-7318-4CD9-81DB-45AFE44C49CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AB84340-A1EC-4DA8-9506-CB9A08EF2B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AB84340-A1EC-4DA8-9506-CB9A08EF2B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AB84340-A1EC-4DA8-9506-CB9A08EF2B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AB84340-A1EC-4DA8-9506-CB9A08EF2B73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{163597E0-C42E-4364-9299-C5DEBB9D00A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{163597E0-C42E-4364-9299-C5DEBB9D00A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{163597E0-C42E-4364-9299-C5DEBB9D00A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{163597E0-C42E-4364-9299-C5DEBB9D00A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
