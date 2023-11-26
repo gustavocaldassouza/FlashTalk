@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { PrimeNGConfig } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StyleClassModule } from 'primeng/styleclass';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -17,12 +18,13 @@ import { StyleClassModule } from 'primeng/styleclass';
     ButtonModule,
     CheckboxModule,
     StyleClassModule,
+    HttpClientModule,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  constructor(private primengConfig: PrimeNGConfig) {}
+  constructor(private primengConfig: PrimeNGConfig, private http: HttpClient) {}
 
   ngOnInit() {
     this.primengConfig.ripple = true;
@@ -32,5 +34,13 @@ export class AppComponent implements OnInit {
       menu: 1000, // overlay menus
       tooltip: 1100, // tooltip
     };
+    this.getData();
+  }
+
+  getData() {
+    this.http.get('/api/weatherforecast').subscribe(
+      (data: any) => console.log(data),
+      (error: any) => console.error(error)
+    );
   }
 }

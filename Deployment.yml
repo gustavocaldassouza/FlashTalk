@@ -1,0 +1,132 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angularapp-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: angularapp
+  template:
+    metadata:
+      labels:
+        app: angularapp
+    spec:
+      containers:
+      - name: angularapp
+        image: netcoreapp:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "256Mi"
+
+---
+# Service for Angular
+apiVersion: v1
+kind: Service
+metadata:
+  name: angularapp-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 80
+  selector:
+    app: angularapp
+
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netcoreapi-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: netcoreapi
+  template:
+    metadata:
+      labels:
+        app: netcoreapi
+    spec:
+      containers:
+      - name: netcoreapi
+        image: netcoreapi:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "256Mi"
+
+---
+# Service for Netcore
+apiVersion: v1
+kind: Service
+metadata:
+  name: netcoreapi-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: netcoreapi
+
+---
+
+# Deployment for SQL Server of 3 replicas and a service for communication
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlserver-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sqlserver
+  template:
+    metadata:
+      labels:
+        app: sqlserver
+    spec:
+      containers:
+      - name: sqlserver
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 1433
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "256Mi"
+        env:
+        - name: SA_PASSWORD
+          value: Password123 # Replace with your desired password
+
+---
+# Service for SQL Server
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver-service
+spec:
+  ports:
+  - port: 1433
+    targetPort: 1433
+  selector:
+    app: sqlserver
