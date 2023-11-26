@@ -23,5 +23,12 @@ namespace FlashTalk.Domain
             Email = email;
             Password = password;
         }
+
+        public User()
+        {
+            Name = string.Empty;
+            Email = string.Empty;
+            Password = string.Empty;
+        }
     }
 }
