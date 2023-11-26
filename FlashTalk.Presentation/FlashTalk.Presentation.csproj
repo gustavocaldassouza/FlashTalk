@@ -12,4 +12,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FlashTalk.Infrastructure\FlashTalk.Infrastructure.csproj" />
+    <ProjectReference Include="..\FlashTalk.Domain\FlashTalk.Domain.csproj" />
+    <ProjectReference Include="..\FlashTalk.Application\FlashTalk.Application.csproj" />
+  </ItemGroup>
+
 </Project>
