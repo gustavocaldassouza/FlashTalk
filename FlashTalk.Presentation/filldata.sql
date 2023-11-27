@@ -37,24 +37,25 @@ CREATE TABLE [dbo].message
   id INT IDENTITY(1,1) PRIMARY KEY,
   chat_id INT NOT NULL,
   sender_id INT NOT NULL,
-  message VARCHAR(255) NOT NULL,
+  text_message VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT GETDATE(),
   FOREIGN KEY (chat_id) REFERENCES chat(id),
   FOREIGN KEY (sender_id) REFERENCES userd(id)
 );
 
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (1, 1, 'Olá 1');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (1, 2, 'Olá 2');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (1, 3, 'Olá 3');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (2, 1, 'Olá 4');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (2, 2, 'Olá 5');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (2, 3, 'Olá 6');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (3, 1, 'Olá 7');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (3, 2, 'Olá 8');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (3, 3, 'Olá 9');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (4, 2, 'Olá 10');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (4, 3, 'Olá 11');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (5, 1, 'Olá 12');
-INSERT INTO [dbo].message (chat_id, sender_id, message) VALUES (5, 3, 'Olá 13');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (1, 1, 'Olá 1');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (1, 2, 'Olá 2');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (1, 3, 'Olá 3');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (2, 1, 'Olá 4');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (2, 2, 'Olá 5');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (2, 3, 'Olá 6');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (3, 1, 'Olá 7');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (3, 2, 'Olá 8');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (3, 3, 'Olá 9');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (4, 2, 'Olá 10');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (4, 3, 'Olá 11');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (5, 1, 'Olá 12');
+INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (5, 3, 'Olá 13');
 
 CREATE TABLE [dbo].participant
 (
