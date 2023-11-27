@@ -85,14 +85,27 @@ spec:
     app: netcoreapi
 
 ---
+# Service for Netcore
+apiVersion: v1
+kind: Service
+metadata:
+  name: netcoreapi-serviceapi
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8081
+    targetPort: 80
+  selector:
+    app: netcoreapi
 
+---
 # Deployment for SQL Server of 3 replicas and a service for communication
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sqlserver-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: sqlserver
@@ -107,16 +120,11 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 1433
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "512Mi"
-          requests:
-            cpu: "0.1"
-            memory: "256Mi"
         env:
-        - name: SA_PASSWORD
-          value: Password123 # Replace with your desired password
+        - name: MSSQL_SA_PASSWORD
+          value: "Password123"
+        - name: ACCEPT_EULA
+          value: "Y"
 
 ---
 # Service for SQL Server
@@ -125,6 +133,20 @@ kind: Service
 metadata:
   name: sqlserver-service
 spec:
+  ports:
+  - port: 1433
+    targetPort: 1433
+  selector:
+    app: sqlserver
+
+---
+# Service for SQL Server
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserver-servicedb
+spec:
+  type: LoadBalancer
   ports:
   - port: 1433
     targetPort: 1433

@@ -35,6 +35,7 @@ export class AppComponent implements OnInit {
       tooltip: 1100, // tooltip
     };
     this.getData();
+    this.postData();
   }
 
   getData() {
@@ -42,5 +43,18 @@ export class AppComponent implements OnInit {
       (data: any) => console.log(data),
       (error: any) => console.error(error)
     );
+  }
+
+  postData() {
+    this.http
+      .post('/api/userregistration', {
+        name: 'string',
+        email: 'stringstringstringst',
+        password: 'string',
+      })
+      .subscribe(
+        (data: any) => console.log(data),
+        (error: any) => console.error(error)
+      );
   }
 }
