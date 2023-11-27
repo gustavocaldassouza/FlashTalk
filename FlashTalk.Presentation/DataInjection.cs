@@ -32,7 +32,7 @@ namespace FlashTalk.Presentation
       }
     }
 
-    private static void FillDatabase(IConfiguration configuration)
+    public static void FillDatabase(IConfiguration configuration)
     {
       var connectionString = configuration.GetConnectionString("FlashTalkDbCreate") ?? throw new ArgumentNullException("FLASH_TALK_CONNECTION_STRING");
       var scriptPath = Path.Combine(AppContext.BaseDirectory, "filldata.sql");

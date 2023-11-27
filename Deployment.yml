@@ -85,20 +85,6 @@ spec:
     app: netcoreapi
 
 ---
-# Service for Netcore
-apiVersion: v1
-kind: Service
-metadata:
-  name: netcoreapi-serviceapi
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 8081
-    targetPort: 80
-  selector:
-    app: netcoreapi
-
----
 # Deployment for SQL Server of 3 replicas and a service for communication
 apiVersion: apps/v1
 kind: Deployment
@@ -133,20 +119,6 @@ kind: Service
 metadata:
   name: sqlserver-service
 spec:
-  ports:
-  - port: 1433
-    targetPort: 1433
-  selector:
-    app: sqlserver
-
----
-# Service for SQL Server
-apiVersion: v1
-kind: Service
-metadata:
-  name: sqlserver-servicedb
-spec:
-  type: LoadBalancer
   ports:
   - port: 1433
     targetPort: 1433

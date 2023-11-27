@@ -24,11 +24,17 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-app.UseSwagger();
-app.UseSwaggerUI();
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    DataInjection.FillDatabase(app.Configuration);
+}
+
+if (app.Environment.IsProduction())
+{
+    DataInjection.HandleDatabase(app.Configuration);
+}
 
 app.UseCors("AllowAllOrigins");
 app.UseRouting();
@@ -56,7 +62,6 @@ app.MapGet("/api/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-DataInjection.HandleDatabase(app.Configuration);
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
