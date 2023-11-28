@@ -10,6 +10,4 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent {
-  title = 'FlashTalk.UI';
-}
+export class AppComponent {}
