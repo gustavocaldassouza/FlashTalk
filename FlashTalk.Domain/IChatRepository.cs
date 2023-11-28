@@ -8,5 +8,6 @@ namespace FlashTalk.Domain
         void InsertNewMessage(int channelId, string message, int senderId);
         int GetChannelId(int senderId, int receiverId);
         Chat GetChatById(int chatId);
+        IEnumerable<Chat> GetChatsByUserId(int userId);
     }
 }
