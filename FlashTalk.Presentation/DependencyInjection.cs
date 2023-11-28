@@ -1,4 +1,4 @@
-using System;
+using FlashTalk.Application.UseCases.MessageReceiving;
 using FlashTalk.Application.UseCases.MessageSending;
 using FlashTalk.Application.UseCases.UserRegistration;
 using FlashTalk.Application.UseCases.UserSearch;
@@ -17,6 +17,7 @@ namespace FlashTalk.Presentation
       services.AddScoped<IUserRegistration, UserRegistration>();
       services.AddScoped<IUserSearch, UserSearch>();
       services.AddScoped<IMessageSending, MessageSending>();
+      services.AddScoped<IMessageReceiving, MessageReceiving>();
 
       return services;
     }
