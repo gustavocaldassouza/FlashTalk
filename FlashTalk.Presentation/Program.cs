@@ -12,13 +12,13 @@ builder.Services.AddUseCases();
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
     {
-        options.AddPolicy("AllowAllOrigins",
-            builder =>
-            {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
+      options.AddPolicy("AllowAllOrigins",
+          builder =>
+          {
+            builder.AllowAnyOrigin()
+                     .AllowAnyMethod()
+                     .AllowAnyHeader();
+          });
     });
 
 var app = builder.Build();
@@ -26,14 +26,14 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    DataInjection.FillDatabase(app.Configuration);
+  app.UseSwagger();
+  app.UseSwaggerUI();
+  DataInjection.FillDatabase(app.Configuration);
 }
 
 if (app.Environment.IsProduction())
 {
-    DataInjection.HandleDatabase(app.Configuration);
+  DataInjection.HandleDatabase(app.Configuration);
 }
 
 app.UseCors("AllowAllOrigins");
@@ -49,15 +49,15 @@ var summaries = new[]
 
 app.MapGet("/api/weatherforecast", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+  var forecast = Enumerable.Range(1, 5).Select(index =>
+      new WeatherForecast
+      (
+          DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+          Random.Shared.Next(-20, 55),
+          summaries[Random.Shared.Next(summaries.Length)]
+      ))
+      .ToArray();
+  return forecast;
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
@@ -66,5 +66,5 @@ app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+  public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }

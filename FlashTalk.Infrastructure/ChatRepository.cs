@@ -89,9 +89,21 @@ namespace FlashTalk.Infrastructure
       }
     }
 
+    public IEnumerable<Chat> GetChatByUserId(int userId)
+    {
+      IEnumerable<Chat> chat = RetrieveChatByUserId(userId);
+      foreach (var item in chat)
+      {
+        item.Messages = RetrieveMessages(item.Id);
+        item.Participants = RetrieveParticipants(item.Id);
+      }
+
+      return chat;
+    }
+
     public Chat GetChatById(int chatId)
     {
-      Chat chat = RetrieveChat(chatId);
+      Chat chat = RetrieveChatByChatId(chatId);
       IEnumerable<Message> messages = RetrieveMessages(chatId);
       IEnumerable<User> participants = RetrieveParticipants(chatId);
 
@@ -105,7 +117,42 @@ namespace FlashTalk.Infrastructure
       return new Chat();
     }
 
-    private Chat RetrieveChat(int chatId)
+    private IEnumerable<Chat> RetrieveChatByUserId(int userId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+        string query = @"SELECT CHAT.ID CHAT_ID
+                              , CHAT.NAME CHAT_NAME
+                              , CHAT.CREATED_AT CHAT_CREATED_AT
+                              , OWNER.ID OWNER_ID
+                              , OWNER.NAME OWNER_NAME
+                              , OWNER.EMAIL OWNER_EMAIL
+                           FROM PARTICIPANT PART
+                           JOIN CHAT ON CHAT.ID = PART.CHAT_ID
+                           JOIN USERD OWNER ON CHAT.OWNER_ID = OWNER.ID
+                          WHERE PART.USER_ID = @UserId;";
+        var parameters = new { UserId = userId };
+
+        var chat = connection.Query(query, parameters)
+                     .Select(row => new Chat
+                     {
+                       Id = row.CHAT_ID,
+                       Name = row.CHAT_NAME,
+                       CreatedAt = row.CHAT_CREATED_AT,
+                       Owner = new User
+                       {
+                         Id = row.OWNER_ID,
+                         Name = row.OWNER_NAME,
+                         Email = row.OWNER_EMAIL
+                       }
+                     }).ToList();
+
+        return chat!;
+      }
+    }
+
+    private Chat RetrieveChatByChatId(int chatId)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
       {
@@ -199,42 +246,6 @@ namespace FlashTalk.Infrastructure
                       }).ToList();
 
         return participants;
-      }
-    }
-
-    public IEnumerable<Chat> GetChatsByUserId(int userId)
-    {
-      using (IDbConnection connection = new SqlConnection(_connectionString))
-      {
-        connection.Open();
-
-        string query = @"SELECT CHAT.ID CHAT_ID
-                              , CHAT.NAME CHAT_NAME
-                              , CHAT.CREATED_AT CHAT_CREATED_AT
-                              , OWNER.ID OWNER_ID
-                              , OWNER.NAME OWNER_NAME
-                              , OWNER.EMAIL OWNER_EMAIL
-                           FROM CHAT
-                           JOIN USERD OWNER ON CHAT.OWNER_ID = OWNER.ID
-                           JOIN PARTICIPANT PART ON PART.CHAT_ID = CHAT.ID
-                          WHERE PART.USER_ID = @UserId;";
-        var parameters = new { UserId = userId };
-
-        var chats = connection.Query(query, parameters)
-                    .Select(row => new Chat
-                    {
-                      Id = row.CHAT_ID,
-                      Name = row.CHAT_NAME,
-                      CreatedAt = row.CHAT_CREATED_AT,
-                      Owner = new User
-                      {
-                        Id = row.OWNER_ID,
-                        Name = row.OWNER_NAME,
-                        Email = row.OWNER_EMAIL
-                      }
-                    }).ToList();
-
-        return chats;
       }
     }
   }

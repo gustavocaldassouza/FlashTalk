@@ -6,57 +6,57 @@ using Microsoft.Extensions.Configuration;
 
 namespace FlashTalk.Infrastructure
 {
-    public class UserRepository : IUserRepository
+  public class UserRepository : IUserRepository
+  {
+    private readonly string _connectionString;
+
+    public UserRepository(IConfiguration configuration)
     {
-        private readonly string _connectionString;
-
-        public UserRepository(IConfiguration configuration)
-        {
-            _connectionString = configuration.GetConnectionString("FlashTalkDb") ?? throw new ArgumentNullException("FLASH_TALK_CONNECTION_STRING");
-        }
-
-        public IEnumerable<User> GetUsersByName(string name)
-        {
-            using (IDbConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name";
-                var parameters = new { Name = $"%{name}%" };
-
-                return connection.Query<User>(query, parameters);
-            }
-        }
-
-
-        public User Register(string name, string email, string password)
-        {
-            int id = 0;
-            using (IDbConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                string query = "INSERT INTO userd (name, email, password) OUTPUT INSERTED.id VALUES (@Name, @Email, @Password)";
-                var parameters = new { Name = name, Email = email, Password = password };
-
-                id = connection.ExecuteScalar<int>(query, parameters);
-            }
-
-            User user = GetById(id);
-            return user;
-        }
-
-        private User GetById(int id)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                string query = "SELECT id, name, email FROM userd WHERE id = @Id";
-                var parameters = new { Id = id };
-
-                return connection.QueryFirst<User>(query, parameters);
-            }
-        }
+      _connectionString = configuration.GetConnectionString("FlashTalkDb") ?? throw new ArgumentNullException("FLASH_TALK_CONNECTION_STRING");
     }
+
+    public IEnumerable<User> GetUsersByName(string name)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name";
+        var parameters = new { Name = $"%{name}%" };
+
+        return connection.Query<User>(query, parameters);
+      }
+    }
+
+
+    public User Register(string name, string email, string password)
+    {
+      int id = 0;
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "INSERT INTO userd (name, email, password) OUTPUT INSERTED.id VALUES (@Name, @Email, @Password)";
+        var parameters = new { Name = name, Email = email, Password = password };
+
+        id = connection.ExecuteScalar<int>(query, parameters);
+      }
+
+      User user = GetById(id);
+      return user;
+    }
+
+    private User GetById(int id)
+    {
+      using (SqlConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT id, name, email FROM userd WHERE id = @Id";
+        var parameters = new { Id = id };
+
+        return connection.QueryFirst<User>(query, parameters);
+      }
+    }
+  }
 }
