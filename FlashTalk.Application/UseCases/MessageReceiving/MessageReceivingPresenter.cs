@@ -1,11 +1,11 @@
 using System;
 using FlashTalk.Domain;
 
-namespace FlashTalk.Application.UseCases.UserSearch
+namespace FlashTalk.Application.UseCases.MessageReceiving
 {
-  public class UserSearchPresenter : IOutputPort
+  public class MessageReceivingPresenter : IOutputPort
   {
-    public IEnumerable<User>? users { get; private set; }
+    public IEnumerable<Chat>? Chats { get; private set; }
     public bool ErrorOutput { get; private set; }
     public string? ErrorMessage { get; private set; }
     public void Error(string message)
@@ -14,9 +14,9 @@ namespace FlashTalk.Application.UseCases.UserSearch
       ErrorMessage = message;
     }
 
-    public void Ok(IEnumerable<User> users)
+    public void Ok(IEnumerable<Chat> chats)
     {
-      this.users = users;
+      Chats = chats;
     }
 
   }
