@@ -4,7 +4,7 @@ import { User } from "./User";
 export interface Chat {
   id: string;
   name: string;
-  createdAt: string;
+  createdAt: Date;
   owner: User;
   messages: Message[];
   participants: User[];

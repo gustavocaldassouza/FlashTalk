@@ -1,10 +1,28 @@
 import { useParams } from "react-router-dom";
 import MessageReceivingService from "../services/MessageReceivingService";
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { Chat as ChatModel } from "../models/Chat";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  CssBaseline,
+  Divider,
+  List,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  ThemeProvider,
+  Toolbar,
+  Typography,
+  createTheme,
+} from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
+
+const defaultTheme = createTheme();
 
 function Chat() {
   const { userid } = useParams();
@@ -44,6 +62,13 @@ function Chat() {
     handleGetMessages();
   }, [userid]);
 
+  function handleListItemClick(
+    _event: MouseEvent<HTMLDivElement>,
+    id: string
+  ): void {
+    console.log(id);
+  }
+
   return (
     <>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
@@ -52,14 +77,62 @@ function Chat() {
           {message}
         </Alert>
       </Snackbar>
-      <h1>User ID: {userid}</h1>
-      <p>Hi</p>
-      {resp &&
-        resp.map((chat) => (
-          <div key={chat.id}>
-            <p>{chat.id}</p>
-          </div>
-        ))}
+      <ThemeProvider theme={defaultTheme}>
+        <CssBaseline />
+        <AppBar position="relative">
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <ChatIcon sx={{ mr: 2 }} />
+              <Typography variant="h6" color="inherit" noWrap>
+                FlashTalk
+              </Typography>
+            </Box>
+            <Avatar alt="1" />
+          </Toolbar>
+        </AppBar>
+      </ThemeProvider>
+      <List
+        sx={{
+          width: "100%",
+          maxWidth: 360,
+          bgcolor: "background.paper",
+        }}
+      >
+        {resp &&
+          resp.map((chat) => (
+            <Box key={chat.id}>
+              <ListItemButton
+                onClick={(event) => handleListItemClick(event, chat.id)}
+              >
+                <ListItemAvatar>
+                  <Avatar alt={chat.name} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={chat.name}
+                  secondary={"hidasdasdasdasdasdassdasdasdasdaasdasdasdsd"}
+                  secondaryTypographyProps={{
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                  }}
+                />
+                <ListItemText
+                  secondary={new Date(chat.createdAt).toLocaleString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                  secondaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    textAlign: "right",
+                  }}
+                />
+              </ListItemButton>
+              <Divider variant="inset" component="li" />
+            </Box>
+          ))}
+      </List>
     </>
   );
 }
