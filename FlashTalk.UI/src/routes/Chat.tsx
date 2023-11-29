@@ -11,6 +11,7 @@ import {
   Box,
   CssBaseline,
   Divider,
+  Grid,
   List,
   ListItemAvatar,
   ListItemButton,
@@ -91,48 +92,58 @@ function Chat() {
           </Toolbar>
         </AppBar>
       </ThemeProvider>
-      <List
-        sx={{
-          width: "100%",
-          maxWidth: 360,
-          bgcolor: "background.paper",
-        }}
-      >
-        {resp &&
-          resp.map((chat) => (
-            <Box key={chat.id}>
-              <ListItemButton
-                onClick={(event) => handleListItemClick(event, chat.id)}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={chat.name} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={chat.name}
-                  secondary={"hidasdasdasdasdasdassdasdasdasdaasdasdasdsd"}
-                  secondaryTypographyProps={{
-                    textOverflow: "ellipsis",
-                    overflow: "hidden",
-                  }}
-                />
-                <ListItemText
-                  secondary={new Date(chat.createdAt).toLocaleString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })}
-                  secondaryTypographyProps={{
-                    fontSize: "0.8rem",
-                    textAlign: "right",
-                  }}
-                />
-              </ListItemButton>
-              <Divider variant="inset" component="li" />
-            </Box>
-          ))}
-      </List>
+      <Grid container columns={18}>
+        <Grid item xs={5}>
+          <List
+            sx={{
+              width: "100%",
+              bgcolor: "background.paper",
+              paddingTop: 0,
+            }}
+          >
+            {resp &&
+              resp.map((chat) => (
+                <Box key={chat.id}>
+                  <ListItemButton
+                    onClick={(event) => handleListItemClick(event, chat.id)}
+                  >
+                    <ListItemAvatar>
+                      <Avatar alt={chat.name} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={chat.name}
+                      secondary={"hidasdasdasdasdasdassdasdasdasdaasdasdasdsd"}
+                      secondaryTypographyProps={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                      }}
+                    />
+                    <ListItemText
+                      secondary={new Date(chat.createdAt).toLocaleString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }
+                      )}
+                      secondaryTypographyProps={{
+                        fontSize: "0.8rem",
+                        textAlign: "right",
+                      }}
+                    />
+                  </ListItemButton>
+                  <Divider variant="inset" component="li" />
+                </Box>
+              ))}
+          </List>
+        </Grid>
+        <Grid item xs={13}>
+          <Box sx={{ height: "100%", backgroundColor: "lightblue" }}>Hi</Box>
+        </Grid>
+      </Grid>
     </>
   );
 }
