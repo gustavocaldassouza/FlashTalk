@@ -1,17 +1,16 @@
-import AppBar from "@mui/material/AppBar";
 import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
-import ChatIcon from "@mui/icons-material/Chat";
 import CssBaseline from "@mui/material/CssBaseline";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import styles from "./Home.module.css";
-import { Link } from "react-router-dom";
 import TextField from "@mui/material/TextField";
+import ChatIcon from "@mui/icons-material/Chat";
+import Toolbar from "@mui/material/Toolbar";
+import { Link } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
 
 const defaultTheme = createTheme();
 
@@ -20,7 +19,7 @@ export default function Home() {
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <AppBar position="relative">
-        <Toolbar className={styles.toolbar}>
+        <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <ChatIcon sx={{ mr: 2 }} />
             <Typography variant="h6" color="inherit" noWrap>
@@ -38,8 +37,8 @@ export default function Home() {
             </Link>
             <Link style={{ textDecoration: "none" }} to="/signup">
               <Button
-                style={{ color: "white", borderColor: "white" }}
                 variant="outlined"
+                style={{ borderColor: "white", color: "white" }}
                 endIcon={<SendIcon />}
               >
                 Sign Up
@@ -49,7 +48,6 @@ export default function Home() {
         </Toolbar>
       </AppBar>
       <main>
-        {/* Hero unit */}
         <Box
           sx={{
             bgcolor: "background.paper",

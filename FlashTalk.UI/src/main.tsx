@@ -2,15 +2,16 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import Root from "./routes/Root";
 import ErrorPage from "./ErrorPage";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
+import Home from "./routes/Home";
+import Chat from "./routes/Chat";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element: <Home />,
     errorElement: <ErrorPage />,
   },
   {
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
   {
     path: "/signin",
     element: <SignIn />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/chat/:userid",
+    element: <Chat />,
     errorElement: <ErrorPage />,
   },
 ]);
