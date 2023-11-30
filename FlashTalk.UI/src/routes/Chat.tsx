@@ -135,7 +135,9 @@ function Chat() {
                 Select a conversation to start.
               </Typography>
             )}
-            {channelSelected && <Channel chat={channelSelected} />}
+            {channelSelected && userid && (
+              <Channel chat={channelSelected} userId={userid} />
+            )}
           </Paper>
         </Grid>
       </Grid>

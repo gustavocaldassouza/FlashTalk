@@ -1,56 +1,22 @@
-import { Box, IconButton, InputBase, Stack, Typography } from "@mui/material";
+import { Box, IconButton, InputBase, Stack } from "@mui/material";
 import ChannelBar from "./ChannelBar";
 import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
+import Message from "./Message";
 
 interface ChannelProps {
   chat: Chat;
+  userId: string;
 }
 
-const numbers = [1, 2, 3];
-
-export default function Channel({ chat }: ChannelProps) {
+function Channel({ chat, userId }: ChannelProps) {
   return (
     <Stack spacing={1}>
       <ChannelBar chat={chat}></ChannelBar>
       <Box height={238} overflow={"auto"}>
-        {numbers.map((number) => (
-          <Box key={number}>
-            <Box>
-              <Box
-                maxWidth="50%"
-                width="25%"
-                height={37}
-                margin={1}
-                sx={{
-                  backgroundColor: "#F5F5F5",
-                  color: "black",
-                  borderRadius: "10px 10px 10px 0px",
-                }}
-              >
-                <Typography paddingTop="8px" paddingLeft="10px">
-                  Hello there!
-                </Typography>
-              </Box>
-            </Box>
-            <Box>
-              <Box
-                maxWidth="50%"
-                width="25%"
-                height={37}
-                margin={1}
-                sx={{
-                  backgroundColor: "#1976D2",
-                  borderRadius: "10px 10px 0px 10px",
-                  marginLeft: "auto",
-                  color: "white",
-                }}
-              >
-                <Typography paddingTop="8px" paddingLeft="10px">
-                  Hey!
-                </Typography>
-              </Box>
-            </Box>
+        {chat.messages.map((message) => (
+          <Box key={message.id}>
+            <Message message={message} userId={userId} />
           </Box>
         ))}
       </Box>
@@ -67,3 +33,5 @@ export default function Channel({ chat }: ChannelProps) {
     </Stack>
   );
 }
+
+export default Channel;

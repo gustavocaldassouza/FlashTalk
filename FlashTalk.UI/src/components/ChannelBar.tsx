@@ -7,7 +7,7 @@ interface ChannelBarProps {
 
 export default function ChannelBar({ chat }: ChannelBarProps) {
   return (
-    <AppBar position="relative">
+    <AppBar position="relative" color="secondary">
       <Toolbar
         style={{
           display: "flex",
