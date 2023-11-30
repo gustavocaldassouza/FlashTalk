@@ -11,20 +11,29 @@ interface ChannelProps {
   chat: Chat;
   userId: string;
   handleErrorAlert: (message: string) => void;
+  updateMessages: (chatId: string, messages: MessageModel[]) => void;
 }
 
-function Channel(props: ChannelProps) {
+function Channel({
+  chat,
+  userId,
+  handleErrorAlert,
+  updateMessages,
+}: ChannelProps) {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(props.chat.messages);
+  const [messages, setMessages] = useState(chat.messages);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat.id, messages]);
 
   useEffect(() => {
     setMessage("");
-  }, [props.chat]);
+    setMessages(chat.messages);
+  }, [chat]);
 
   function handleSendMessage(
     event: MouseEvent<HTMLButtonElement> | React.KeyboardEvent
@@ -34,10 +43,8 @@ function Channel(props: ChannelProps) {
     new MessageSendingService()
       .sendMessage(
         message,
-        parseInt(props.userId),
-        parseInt(
-          props.chat.participants.find((p) => p.id != props.userId)?.id ?? "1"
-        )
+        parseInt(userId),
+        parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1")
       )
       .then((response) => {
         if (!response.ok) {
@@ -50,7 +57,7 @@ function Channel(props: ChannelProps) {
         setMessages([...messages, newMessage as MessageModel]);
       })
       .catch((error) => {
-        props.handleErrorAlert(error.message);
+        handleErrorAlert(error.message);
       });
 
     setMessage("");
@@ -58,11 +65,11 @@ function Channel(props: ChannelProps) {
 
   return (
     <Stack spacing={1}>
-      <ChannelBar chat={props.chat}></ChannelBar>
+      <ChannelBar chat={chat}></ChannelBar>
       <Box height={238} overflow={"auto"}>
         {messages.map((message) => (
           <Box key={message.id}>
-            <Message message={message} userId={props.userId} />
+            <Message message={message} userId={userId} />
           </Box>
         ))}
         <Box ref={messagesEndRef} />

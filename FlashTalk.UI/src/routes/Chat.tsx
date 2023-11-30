@@ -5,6 +5,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { Chat as ChatModel } from "../models/Chat";
+import { Message as MessageModel } from "../models/Message";
 import {
   AppBar,
   Avatar,
@@ -63,8 +64,6 @@ function Chat() {
     handleGetMessages();
   }, [userid]);
 
-  useEffect(() => {}, [channelSelected]);
-
   function handleListItemClick(
     _event: MouseEvent<HTMLDivElement>,
     id: string
@@ -75,6 +74,17 @@ function Chat() {
   function handleErrorAlert(errorMessage: string) {
     setOpen(true);
     setMessage(errorMessage);
+  }
+
+  function updateMessages(chatId: string, messages: MessageModel[]) {
+    const updatedChats = chats.map((chat) => {
+      if (chat.id === chatId) {
+        return { ...chat, messages: messages };
+      }
+      return chat;
+    });
+
+    setChats(updatedChats);
   }
 
   return (
@@ -145,6 +155,7 @@ function Chat() {
                 chat={channelSelected}
                 userId={userid}
                 handleErrorAlert={handleErrorAlert}
+                updateMessages={updateMessages}
               />
             )}
           </Paper>
