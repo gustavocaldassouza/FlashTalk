@@ -7,16 +7,21 @@ interface ChannelBarProps {
 
 export default function ChannelBar({ chat }: ChannelBarProps) {
   return (
-    <AppBar position="relative" color="warning" sx={{ height: 60 }}>
+    <AppBar position="relative">
       <Toolbar
         style={{
           display: "flex",
           justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <Avatar alt={chat.name} sx={{ marginTop: -0.5 }} />
-          <Typography variant="h6" color="inherit" noWrap marginLeft={2}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          <Avatar alt={chat.name} sx={{ marginTop: -0.5, marginRight: 2 }} />
+          <Typography variant="h6" color="inherit" noWrap>
             {chat.name}
           </Typography>
         </div>

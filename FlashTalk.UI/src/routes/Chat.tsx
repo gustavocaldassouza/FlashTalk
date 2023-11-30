@@ -74,28 +74,34 @@ function Chat() {
 
   return (
     <>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
-          <AlertTitle>Error</AlertTitle>
-          {message}
-        </Alert>
-      </Snackbar>
-      <ThemeProvider theme={defaultTheme}>
-        <CssBaseline />
-        <AppBar position="relative">
-          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
-              <ChatIcon sx={{ mr: 2 }} />
-              <Typography variant="h6" color="inherit" noWrap>
-                FlashTalk
-              </Typography>
-            </Box>
-            <Avatar alt="1" />
-          </Toolbar>
-        </AppBar>
-      </ThemeProvider>
       <Grid container columns={18}>
         <Grid item xs={5}>
+          <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+            <Alert
+              onClose={handleClose}
+              severity="error"
+              sx={{ width: "100%" }}
+            >
+              <AlertTitle>Error</AlertTitle>
+              {message}
+            </Alert>
+          </Snackbar>
+          <ThemeProvider theme={defaultTheme}>
+            <CssBaseline />
+            <AppBar position="relative">
+              <Toolbar
+                sx={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <Box sx={{ display: "flex", flexDirection: "row" }}>
+                  <ChatIcon sx={{ mr: 2 }} />
+                  <Typography variant="h6" color="inherit" noWrap>
+                    FlashTalk
+                  </Typography>
+                </Box>
+                <Avatar alt="1" />
+              </Toolbar>
+            </AppBar>
+          </ThemeProvider>
           <List
             sx={{
               width: "100%",
