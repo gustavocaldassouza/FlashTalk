@@ -9,7 +9,7 @@ import {
 import { MouseEvent } from "react";
 import { Chat } from "../models/Chat";
 
-interface ChannelProps {
+interface ChannelItemProps {
   chat: Chat;
   handleListItemClick: (
     event: MouseEvent<HTMLDivElement>,
@@ -17,7 +17,10 @@ interface ChannelProps {
   ) => void;
 }
 
-export default function Channel({ chat, handleListItemClick }: ChannelProps) {
+export default function ChannelItem({
+  chat,
+  handleListItemClick,
+}: ChannelItemProps) {
   return (
     <Box key={chat.id}>
       <ListItemButton onClick={(event) => handleListItemClick(event, chat.id)}>

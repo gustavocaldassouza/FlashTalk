@@ -19,7 +19,7 @@ import {
   createTheme,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
-import Channel from "../components/Channel";
+import ChannelItem from "../components/ChannelItem";
 import ChannelBar from "../components/ChannelBar";
 
 const defaultTheme = createTheme();
@@ -105,7 +105,7 @@ function Chat() {
           >
             {chats &&
               chats.map((chat) => (
-                <Channel
+                <ChannelItem
                   key={chat.id}
                   chat={chat}
                   handleListItemClick={handleListItemClick}
