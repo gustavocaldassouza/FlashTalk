@@ -66,7 +66,7 @@ function Channel({
   return (
     <Stack spacing={1}>
       <ChannelBar chat={chat}></ChannelBar>
-      <Box height={238} overflow={"auto"}>
+      <Box height="calc(100vh - 121px)" overflow={"auto"}>
         {messages.map((message) => (
           <Box key={message.id}>
             <Message message={message} userId={userId} />
@@ -81,7 +81,7 @@ function Channel({
           inputProps={{ "aria-label": "search google maps" }}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          onKeyPress={(event) => {
+          onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSendMessage(event);
             }

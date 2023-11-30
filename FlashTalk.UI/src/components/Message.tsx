@@ -12,7 +12,7 @@ export default function Message({ message, userId }: MessageProps) {
       <Box
         maxWidth="50%"
         width="25%"
-        minHeight={37}
+        height={"35px"}
         paddingBottom={1}
         margin={1}
         sx={{
@@ -25,7 +25,7 @@ export default function Message({ message, userId }: MessageProps) {
           marginLeft: message.sender.id == userId ? "auto" : "none",
         }}
       >
-        <Typography paddingTop="8px" paddingLeft="10px">
+        <Typography paddingTop="5px" paddingLeft="10px">
           {message.text}
         </Typography>
       </Box>

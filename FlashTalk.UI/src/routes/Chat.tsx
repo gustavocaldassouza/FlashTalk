@@ -89,7 +89,7 @@ function Chat() {
 
   return (
     <>
-      <Grid container columns={18}>
+      <Grid container columns={18} sx={{ height: "100vh" }}>
         <Grid item xs={5}>
           <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
             <Alert
@@ -120,7 +120,8 @@ function Chat() {
           <List
             sx={{
               width: "100%",
-              bgcolor: "background.paper",
+              bgcolor: "#f5f5f5",
+              height: "calc(100vh - 65px)",
               padding: 0,
             }}
           >
@@ -135,7 +136,13 @@ function Chat() {
           </List>
         </Grid>
         <Grid item xs={13}>
-          <Paper elevation={0} sx={{ height: "100%" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              height: "100%",
+              borderLeft: "1px solid rgba(0, 0, 0, 0.12)",
+            }}
+          >
             {!channelSelected && (
               <Typography
                 sx={{
@@ -144,7 +151,7 @@ function Chat() {
                   alignItems: "center",
                   height: "100%",
                   color: "rgba(0, 0, 0, 0.5)",
-                  border: "1px solid rgba(0, 0, 0, 0.12)",
+                  // border: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
               >
                 Select a conversation to start.
