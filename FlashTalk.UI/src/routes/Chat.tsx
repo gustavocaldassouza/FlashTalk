@@ -16,6 +16,7 @@ import {
   ListItemAvatar,
   ListItemButton,
   ListItemText,
+  Paper,
   ThemeProvider,
   Toolbar,
   Typography,
@@ -98,7 +99,7 @@ function Chat() {
             sx={{
               width: "100%",
               bgcolor: "background.paper",
-              paddingTop: 0,
+              padding: 0,
             }}
           >
             {resp &&
@@ -141,7 +142,20 @@ function Chat() {
           </List>
         </Grid>
         <Grid item xs={13}>
-          <Box sx={{ height: "100%", backgroundColor: "lightblue" }}>Hi</Box>
+          <Paper elevation={0} sx={{ height: "100%" }}>
+            <Typography
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                color: "rgba(0, 0, 0, 0.5)",
+                border: "1px solid rgba(0, 0, 0, 0.12)",
+              }}
+            >
+              Select a conversation to start.
+            </Typography>
+          </Paper>
         </Grid>
       </Grid>
     </>
