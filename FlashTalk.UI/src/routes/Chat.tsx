@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import ChannelItem from "../components/ChannelItem";
-import ChannelBar from "../components/ChannelBar";
+import Channel from "../components/Channel";
 
 const defaultTheme = createTheme();
 
@@ -129,7 +129,7 @@ function Chat() {
                 Select a conversation to start.
               </Typography>
             )}
-            {channelSelected && <ChannelBar chat={channelSelected} />}
+            {channelSelected && <Channel chat={channelSelected} />}
           </Paper>
         </Grid>
       </Grid>
