@@ -12,7 +12,8 @@ export default function Message({ message, userId }: MessageProps) {
       <Box
         maxWidth="50%"
         width="25%"
-        height={37}
+        minHeight={37}
+        paddingBottom={1}
         margin={1}
         sx={{
           backgroundColor: message.sender.id == userId ? "#1976D2" : "#f5f5f5",

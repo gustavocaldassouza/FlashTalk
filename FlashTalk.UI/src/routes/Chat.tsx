@@ -72,6 +72,11 @@ function Chat() {
     setChannelSelected(chats.find((chat) => chat.id === id) as ChatModel);
   }
 
+  function handleErrorAlert(errorMessage: string) {
+    setOpen(true);
+    setMessage(errorMessage);
+  }
+
   return (
     <>
       <Grid container columns={18}>
@@ -136,7 +141,11 @@ function Chat() {
               </Typography>
             )}
             {channelSelected && userid && (
-              <Channel chat={channelSelected} userId={userid} />
+              <Channel
+                chat={channelSelected}
+                userId={userid}
+                handleErrorAlert={handleErrorAlert}
+              />
             )}
           </Paper>
         </Grid>
