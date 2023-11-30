@@ -20,14 +20,16 @@ import {
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import Channel from "../components/Channel";
+import ChannelBar from "../components/ChannelBar";
 
 const defaultTheme = createTheme();
 
 function Chat() {
   const { userid } = useParams();
   const [open, setOpen] = useState(false);
+  const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
-  const [resp, setResp] = useState<ChatModel[]>();
+  const [chats, setChats] = useState<ChatModel[]>([]);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -48,10 +50,10 @@ function Chat() {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          return response.json(); // Convert the response to JSON
+          return response.json();
         })
         .then((data) => {
-          setResp(data);
+          setChats(data);
         })
         .catch((error) => {
           setOpen(true);
@@ -61,11 +63,13 @@ function Chat() {
     handleGetMessages();
   }, [userid]);
 
+  useEffect(() => {}, [channelSelected]);
+
   function handleListItemClick(
     _event: MouseEvent<HTMLDivElement>,
     id: string
   ): void {
-    console.log(id);
+    setChannelSelected(chats.find((chat) => chat.id === id) as ChatModel);
   }
 
   return (
@@ -99,8 +103,8 @@ function Chat() {
               padding: 0,
             }}
           >
-            {resp &&
-              resp.map((chat) => (
+            {chats &&
+              chats.map((chat) => (
                 <Channel
                   key={chat.id}
                   chat={chat}
@@ -111,18 +115,21 @@ function Chat() {
         </Grid>
         <Grid item xs={13}>
           <Paper elevation={0} sx={{ height: "100%" }}>
-            <Typography
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-                color: "rgba(0, 0, 0, 0.5)",
-                border: "1px solid rgba(0, 0, 0, 0.12)",
-              }}
-            >
-              Select a conversation to start.
-            </Typography>
+            {!channelSelected && (
+              <Typography
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                  color: "rgba(0, 0, 0, 0.5)",
+                  border: "1px solid rgba(0, 0, 0, 0.12)",
+                }}
+              >
+                Select a conversation to start.
+              </Typography>
+            )}
+            {channelSelected && <ChannelBar chat={channelSelected} />}
           </Paper>
         </Grid>
       </Grid>
