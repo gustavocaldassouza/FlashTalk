@@ -10,12 +10,8 @@ import {
   Avatar,
   Box,
   CssBaseline,
-  Divider,
   Grid,
   List,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
   Paper,
   ThemeProvider,
   Toolbar,
@@ -23,6 +19,7 @@ import {
   createTheme,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
+import Channel from "../components/Channel";
 
 const defaultTheme = createTheme();
 
@@ -104,40 +101,11 @@ function Chat() {
           >
             {resp &&
               resp.map((chat) => (
-                <Box key={chat.id}>
-                  <ListItemButton
-                    onClick={(event) => handleListItemClick(event, chat.id)}
-                  >
-                    <ListItemAvatar>
-                      <Avatar alt={chat.name} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={chat.name}
-                      secondary={"hidasdasdasdasdasdassdasdasdasdaasdasdasdsd"}
-                      secondaryTypographyProps={{
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                      }}
-                    />
-                    <ListItemText
-                      secondary={new Date(chat.createdAt).toLocaleString(
-                        "en-US",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }
-                      )}
-                      secondaryTypographyProps={{
-                        fontSize: "0.8rem",
-                        textAlign: "right",
-                      }}
-                    />
-                  </ListItemButton>
-                  <Divider variant="inset" component="li" />
-                </Box>
+                <Channel
+                  key={chat.id}
+                  chat={chat}
+                  handleListItemClick={handleListItemClick}
+                />
               ))}
           </List>
         </Grid>
