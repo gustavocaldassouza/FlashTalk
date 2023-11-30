@@ -29,7 +29,7 @@ export default function ChannelItem({
         </ListItemAvatar>
         <ListItemText
           primary={chat.name}
-          secondary={"hidasdasdasdasdasdassdasdasdasdaasdasdasdsd"}
+          secondary={chat.messages[chat.messages.length - 1]?.text ?? ""}
           secondaryTypographyProps={{
             textOverflow: "ellipsis",
             overflow: "hidden",
