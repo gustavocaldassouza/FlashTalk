@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import MessageReceivingService from "../services/MessageReceivingService";
 import { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -14,6 +13,7 @@ import {
   Grid,
   List,
   Paper,
+  TextField,
   ThemeProvider,
   Toolbar,
   Typography,
@@ -22,15 +22,21 @@ import {
 import ChatIcon from "@mui/icons-material/Chat";
 import ChannelItem from "../components/ChannelItem";
 import Channel from "../components/Channel";
+import { User } from "../models/User";
+import { getUserInfo, getUsers } from "../services/UserService";
+import { getMessages } from "../services/MessageService";
 
 const defaultTheme = createTheme();
 
 function Chat() {
   const { userid } = useParams();
+  const [user, setUser] = useState<User>();
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<ChatModel[]>([]);
+  const [filteredChats, setFilteredChats] = useState<ChatModel[]>([]);
+  const [users, setUsers] = useState<User[]>();
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -45,8 +51,7 @@ function Chat() {
 
   useEffect(() => {
     function handleGetMessages() {
-      new MessageReceivingService()
-        .getMessages(userid ?? "")
+      getMessages(userid ?? "")
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -55,13 +60,21 @@ function Chat() {
         })
         .then((data) => {
           setChats(data);
+          setFilteredChats(data);
         })
         .catch((error) => {
           setOpen(true);
           setMessage(error.message);
         });
     }
+
+    function handleGetUserInfo() {
+      const user = getUserInfo(userid ?? "");
+      setUser(user);
+    }
+
     handleGetMessages();
+    handleGetUserInfo();
   }, [userid]);
 
   function handleListItemClick(
@@ -87,9 +100,54 @@ function Chat() {
     setChats(updatedChats);
   }
 
+  function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
+    const searchValue = (e.target as HTMLInputElement).value;
+
+    if (searchValue === "") {
+      setFilteredChats(chats);
+      setUsers(undefined);
+      return;
+    }
+
+    const filteredChats = chats.filter((chat) =>
+      chat.participants
+        .find((p) => p.id != user?.id)
+        ?.name?.toLowerCase()
+        .includes(searchValue.toLowerCase())
+    );
+
+    setFilteredChats(filteredChats);
+    handleGetUsers(searchValue.toLowerCase());
+  }
+
+  function handleGetUsers(userName: string) {
+    getUsers(userName)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const filteredUsers = data.filter((u: User) => {
+          const participantIds = chats.flatMap((chat) =>
+            chat.participants.map((participant) => participant.id)
+          );
+          return !participantIds.includes(u.id);
+        });
+
+        setUsers(filteredUsers);
+        console.log(users);
+      })
+      .catch((error) => {
+        setOpen(true);
+        setMessage(error.message);
+      });
+  }
+
   return (
     <>
-      <Grid container columns={18}>
+      <Grid container columns={18} sx={{ height: "100vh" }}>
         <Grid item xs={5}>
           <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
             <Alert
@@ -113,29 +171,62 @@ function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Avatar alt="1" />
+                <Avatar>{user?.name[0]}</Avatar>
               </Toolbar>
             </AppBar>
           </ThemeProvider>
           <List
             sx={{
               width: "100%",
-              bgcolor: "background.paper",
+              bgcolor: "#f5f5f5",
+              height: "calc(100vh - 65px)",
               padding: 0,
             }}
           >
-            {chats &&
-              chats.map((chat) => (
+            <TextField
+              size="small"
+              id="standard-basic"
+              label="Search for contact"
+              variant="filled"
+              fullWidth
+              onKeyUp={(e) => {
+                handleContactSearch(e);
+              }}
+            />
+            {filteredChats &&
+              filteredChats.map((chat) => (
                 <ChannelItem
                   key={chat.id}
                   chat={chat}
                   handleListItemClick={handleListItemClick}
+                  userId={user?.id ?? ""}
                 />
               ))}
+            {users && (
+              <>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#e8e8e8",
+                  }}
+                >
+                  Users
+                </Box>
+                {users.map((user) => user.id)}
+              </>
+            )}
           </List>
         </Grid>
         <Grid item xs={13}>
-          <Paper elevation={0} sx={{ height: "100%" }}>
+          <Paper
+            elevation={0}
+            sx={{
+              height: "100%",
+              borderLeft: "1px solid rgba(0, 0, 0, 0.12)",
+            }}
+          >
             {!channelSelected && (
               <Typography
                 sx={{
@@ -144,16 +235,15 @@ function Chat() {
                   alignItems: "center",
                   height: "100%",
                   color: "rgba(0, 0, 0, 0.5)",
-                  border: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
               >
                 Select a conversation to start.
               </Typography>
             )}
-            {channelSelected && userid && (
+            {channelSelected && user?.id && (
               <Channel
                 chat={channelSelected}
-                userId={userid}
+                userId={user.id}
                 handleErrorAlert={handleErrorAlert}
                 updateMessages={updateMessages}
               />

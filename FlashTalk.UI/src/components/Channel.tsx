@@ -4,8 +4,8 @@ import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { MouseEvent, useEffect, useRef, useState } from "react";
-import MessageSendingService from "../services/MessageSendingService";
 import { Message as MessageModel } from "../models/Message";
+import { sendMessage } from "../services/MessageService";
 
 interface ChannelProps {
   chat: Chat;
@@ -40,12 +40,11 @@ function Channel({
   ) {
     event.preventDefault();
     if (message.trim() === "") return;
-    new MessageSendingService()
-      .sendMessage(
-        message,
-        parseInt(userId),
-        parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1")
-      )
+    sendMessage(
+      message,
+      parseInt(userId),
+      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1")
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -65,8 +64,8 @@ function Channel({
 
   return (
     <Stack spacing={1}>
-      <ChannelBar chat={chat}></ChannelBar>
-      <Box height={238} overflow={"auto"}>
+      <ChannelBar chat={chat} userId={userId}></ChannelBar>
+      <Box height="calc(100vh - 121px)" overflow={"auto"}>
         {messages.map((message) => (
           <Box key={message.id}>
             <Message message={message} userId={userId} />
@@ -81,7 +80,7 @@ function Channel({
           inputProps={{ "aria-label": "search google maps" }}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          onKeyPress={(event) => {
+          onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSendMessage(event);
             }
