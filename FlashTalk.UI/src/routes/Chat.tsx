@@ -23,11 +23,13 @@ import {
 import ChatIcon from "@mui/icons-material/Chat";
 import ChannelItem from "../components/ChannelItem";
 import Channel from "../components/Channel";
+import { User } from "../models/User";
 
 const defaultTheme = createTheme();
 
 function Chat() {
   const { userid } = useParams();
+  const [user, setUser] = useState<User>();
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
@@ -64,7 +66,17 @@ function Chat() {
           setMessage(error.message);
         });
     }
+    function handleGetUserInfo() {
+      const user: User = {
+        id: "1",
+        name: "John",
+        email: "",
+        password: "",
+      };
+      setUser(user);
+    }
     handleGetMessages();
+    handleGetUserInfo();
   }, [userid]);
 
   function handleListItemClick(
@@ -125,7 +137,7 @@ function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Avatar alt="1" />
+                <Avatar>{user?.name[0]}</Avatar>
               </Toolbar>
             </AppBar>
           </ThemeProvider>
@@ -153,6 +165,7 @@ function Chat() {
                   key={chat.id}
                   chat={chat}
                   handleListItemClick={handleListItemClick}
+                  userId={user?.id ?? ""}
                 />
               ))}
           </List>
@@ -178,10 +191,10 @@ function Chat() {
                 Select a conversation to start.
               </Typography>
             )}
-            {channelSelected && userid && (
+            {channelSelected && user?.id && (
               <Channel
                 chat={channelSelected}
-                userId={userid}
+                userId={user.id}
                 handleErrorAlert={handleErrorAlert}
                 updateMessages={updateMessages}
               />

@@ -52,14 +52,18 @@ INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 3', 3);
 
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (1, 1, 'Olá 1');
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (1, 2, 'Olá 2');
+
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (2, 1, 'Olá 3');
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (2, 3, 'Olá 4');
+
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (3, 2, 'Olá 5');
 INSERT INTO [dbo].message (chat_id, sender_id, text_message) VALUES (3, 3, 'Olá 6');
 
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (1, 1);
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (2, 1);
+
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (1, 2);
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (3, 2);
+
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (2, 3);
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (3, 3);

@@ -65,7 +65,7 @@ function Channel({
 
   return (
     <Stack spacing={1}>
-      <ChannelBar chat={chat}></ChannelBar>
+      <ChannelBar chat={chat} userId={userId}></ChannelBar>
       <Box height="calc(100vh - 121px)" overflow={"auto"}>
         {messages.map((message) => (
           <Box key={message.id}>
