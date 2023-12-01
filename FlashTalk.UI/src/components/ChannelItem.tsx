@@ -12,7 +12,7 @@ import { Chat } from "../models/Chat";
 interface ChannelItemProps {
   userId: string;
   chat: Chat;
-  handleListItemClick: (
+  handleChannelItemClick: (
     event: MouseEvent<HTMLDivElement>,
     chatId: string
   ) => void;
@@ -21,14 +21,14 @@ interface ChannelItemProps {
 export default function ChannelItem({
   chat,
   userId,
-  handleListItemClick,
+  handleChannelItemClick,
 }: ChannelItemProps) {
   return (
     <>
       {chat && (
         <Box key={chat.id}>
           <ListItemButton
-            onClick={(event) => handleListItemClick(event, chat.id)}
+            onClick={(event) => handleChannelItemClick(event, chat.id)}
           >
             <ListItemAvatar>
               <Avatar>
@@ -47,9 +47,9 @@ export default function ChannelItem({
               secondary={new Date(chat.createdAt).toLocaleString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
-                // day: "2-digit",
-                // month: "2-digit",
-                // year: "numeric",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
               })}
               secondaryTypographyProps={{
                 fontSize: "0.8rem",

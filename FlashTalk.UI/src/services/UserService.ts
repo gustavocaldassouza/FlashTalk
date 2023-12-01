@@ -5,8 +5,6 @@ export function getUsers(userName: string): Promise<Response> {
 }
 
 export function getUserInfo(userId: string): User {
-  console.log(userId);
-
   const user: User = {
     id: "1",
     name: "John",

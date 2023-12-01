@@ -49,7 +49,7 @@ INSERT INTO [dbo].userd (name, email, password) VALUES ('Ana', 'ana@email.com', 
 INSERT INTO [dbo].userd (name, email, password) VALUES ('Pedro', 'pedro@email.com', '123');
 INSERT INTO [dbo].userd (name, email, password) VALUES ('Paulo', 'paulo@email.com', '123');
 
-INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 1', 1);
+INSERT INTO [dbo].chat (name, owner_id, created_at) VALUES ('Chat 1', 1, GETDATE() - 1);
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 2', 2);
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 3', 3);
 

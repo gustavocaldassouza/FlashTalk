@@ -1,4 +1,4 @@
-import { AppBar, Avatar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Avatar, ListItemText, Toolbar } from "@mui/material";
 import { Chat } from "../models/Chat";
 
 interface ChannelBarProps {
@@ -21,12 +21,22 @@ export default function ChannelBar({ chat, userId }: ChannelBarProps) {
             flexDirection: "row",
           }}
         >
-          <Avatar sx={{ marginTop: -0.5, marginRight: 2 }}>
+          <Avatar sx={{ marginRight: 2, marginTop: "8px" }}>
             {chat.participants.find((p) => p.id != userId)?.name?.[0]}
           </Avatar>
-          <Typography variant="h6" color="inherit" noWrap>
+          <ListItemText
+            primary={chat.participants.find((p) => p.id != userId)?.name}
+            primaryTypographyProps={{
+              fontSize: "1.2rem",
+            }}
+            secondary={"Developer"}
+            secondaryTypographyProps={{
+              color: "#f5f5f5",
+            }}
+          />
+          {/* <Typography variant="h6" color="inherit" noWrap>
             {chat.participants.find((p) => p.id != userId)?.name}
-          </Typography>
+          </Typography> */}
         </div>
       </Toolbar>
     </AppBar>

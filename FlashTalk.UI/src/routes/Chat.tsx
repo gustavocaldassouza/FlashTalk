@@ -25,6 +25,7 @@ import Channel from "../components/Channel";
 import { User } from "../models/User";
 import { getUserInfo, getUsers } from "../services/UserService";
 import { getMessages } from "../services/MessageService";
+import UserItem from "../components/UserItem";
 
 const defaultTheme = createTheme();
 
@@ -49,39 +50,56 @@ function Chat() {
     setOpen(false);
   };
 
-  useEffect(() => {
-    function handleGetMessages() {
-      getMessages(userid ?? "")
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setChats(data);
-          setFilteredChats(data);
-        })
-        .catch((error) => {
-          setOpen(true);
-          setMessage(error.message);
-        });
-    }
+  function handleGetMessages() {
+    getMessages(userid ?? "")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setChats(data);
+        setFilteredChats(data);
+      })
+      .catch((error) => {
+        setOpen(true);
+        setMessage(error.message);
+      });
+  }
 
+  useEffect(() => {
     function handleGetUserInfo() {
-      const user = getUserInfo(userid ?? "");
-      setUser(user);
+      const userResp = getUserInfo(userid ?? "");
+      setUser(userResp);
     }
 
     handleGetMessages();
     handleGetUserInfo();
-  }, [userid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userid]); // Only re-run the effect if userId changes
 
-  function handleListItemClick(
+  function handleChannelItemClick(
     _event: MouseEvent<HTMLDivElement>,
     id: string
   ): void {
     setChannelSelected(chats.find((chat) => chat.id === id) as ChatModel);
+  }
+
+  function handleUserItemClick(
+    _event: MouseEvent<HTMLDivElement>,
+    _user: User
+  ): void {
+    const newChat: ChatModel = {
+      id: Number.MAX_VALUE.toString(),
+      name: user!.name,
+      createdAt: new Date(),
+      owner: user!,
+      messages: [],
+      participants: [user!, _user],
+    };
+
+    setChannelSelected(newChat);
   }
 
   function handleErrorAlert(errorMessage: string) {
@@ -106,6 +124,7 @@ function Chat() {
     if (searchValue === "") {
       setFilteredChats(chats);
       setUsers(undefined);
+      handleGetMessages();
       return;
     }
 
@@ -137,7 +156,6 @@ function Chat() {
         });
 
         setUsers(filteredUsers);
-        console.log(users);
       })
       .catch((error) => {
         setOpen(true);
@@ -194,14 +212,20 @@ function Chat() {
               }}
             />
             {filteredChats &&
-              filteredChats.map((chat) => (
-                <ChannelItem
-                  key={chat.id}
-                  chat={chat}
-                  handleListItemClick={handleListItemClick}
-                  userId={user?.id ?? ""}
-                />
-              ))}
+              [...filteredChats]
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .map((chat) => (
+                  <ChannelItem
+                    key={chat.id}
+                    chat={chat}
+                    handleChannelItemClick={handleChannelItemClick}
+                    userId={user?.id ?? ""}
+                  />
+                ))}
             {users && (
               <>
                 <Box
@@ -214,7 +238,14 @@ function Chat() {
                 >
                   Users
                 </Box>
-                {users.map((user) => user.id)}
+                {users.map((user) => (
+                  <UserItem
+                    key={user.id}
+                    user={user}
+                    userId={user?.id ?? ""}
+                    handleUserItemClick={handleUserItemClick}
+                  />
+                ))}
               </>
             )}
           </List>
