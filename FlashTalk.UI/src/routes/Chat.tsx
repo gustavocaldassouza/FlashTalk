@@ -14,6 +14,7 @@ import {
   Grid,
   List,
   Paper,
+  TextField,
   ThemeProvider,
   Toolbar,
   Typography,
@@ -31,6 +32,7 @@ function Chat() {
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<ChatModel[]>([]);
+  const [filteredChats, setFilteredChats] = useState<ChatModel[]>([]);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -55,6 +57,7 @@ function Chat() {
         })
         .then((data) => {
           setChats(data);
+          setFilteredChats(data);
         })
         .catch((error) => {
           setOpen(true);
@@ -85,6 +88,15 @@ function Chat() {
     });
 
     setChats(updatedChats);
+  }
+
+  function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
+    const searchValue = (e.target as HTMLInputElement).value;
+    const filteredChats = chats.filter((chat) =>
+      chat.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+
+    setFilteredChats(filteredChats);
   }
 
   return (
@@ -125,8 +137,18 @@ function Chat() {
               padding: 0,
             }}
           >
-            {chats &&
-              chats.map((chat) => (
+            <TextField
+              size="small"
+              id="standard-basic"
+              label="Search for contact"
+              variant="filled"
+              fullWidth
+              onKeyUp={(e) => {
+                handleContactSearch(e);
+              }}
+            />
+            {filteredChats &&
+              filteredChats.map((chat) => (
                 <ChannelItem
                   key={chat.id}
                   chat={chat}
@@ -151,7 +173,6 @@ function Chat() {
                   alignItems: "center",
                   height: "100%",
                   color: "rgba(0, 0, 0, 0.5)",
-                  // border: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
               >
                 Select a conversation to start.
