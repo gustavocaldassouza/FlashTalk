@@ -1,4 +1,5 @@
 import * as React from "react";
+import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -10,6 +11,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { AppBar, Toolbar } from "@mui/material";
 
 const defaultTheme = createTheme();
 
@@ -25,6 +27,16 @@ export default function SignUp() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <AppBar position="relative">
+        <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <ChatIcon sx={{ mr: 2 }} />
+            <Typography variant="h6" color="inherit" noWrap>
+              FlashTalk
+            </Typography>
+          </div>
+        </Toolbar>
+      </AppBar>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box

@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import MessageReceivingService from "../services/MessageReceivingService";
 import { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -24,6 +23,8 @@ import ChatIcon from "@mui/icons-material/Chat";
 import ChannelItem from "../components/ChannelItem";
 import Channel from "../components/Channel";
 import { User } from "../models/User";
+import { getUserInfo, getUsers } from "../services/UserService";
+import { getMessages } from "../services/MessageService";
 
 const defaultTheme = createTheme();
 
@@ -35,6 +36,7 @@ function Chat() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<ChatModel[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatModel[]>([]);
+  const [users, setUsers] = useState<User[]>();
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -49,8 +51,7 @@ function Chat() {
 
   useEffect(() => {
     function handleGetMessages() {
-      new MessageReceivingService()
-        .getMessages(userid ?? "")
+      getMessages(userid ?? "")
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,15 +67,12 @@ function Chat() {
           setMessage(error.message);
         });
     }
+
     function handleGetUserInfo() {
-      const user: User = {
-        id: "1",
-        name: "John",
-        email: "",
-        password: "",
-      };
+      const user = getUserInfo(userid ?? "");
       setUser(user);
     }
+
     handleGetMessages();
     handleGetUserInfo();
   }, [userid]);
@@ -104,6 +102,13 @@ function Chat() {
 
   function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
     const searchValue = (e.target as HTMLInputElement).value;
+
+    if (searchValue === "") {
+      setFilteredChats(chats);
+      setUsers(undefined);
+      return;
+    }
+
     const filteredChats = chats.filter((chat) =>
       chat.participants
         .find((p) => p.id != user?.id)
@@ -112,6 +117,32 @@ function Chat() {
     );
 
     setFilteredChats(filteredChats);
+    handleGetUsers(searchValue.toLowerCase());
+  }
+
+  function handleGetUsers(userName: string) {
+    getUsers(userName)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const filteredUsers = data.filter((u: User) => {
+          const participantIds = chats.flatMap((chat) =>
+            chat.participants.map((participant) => participant.id)
+          );
+          return !participantIds.includes(u.id);
+        });
+
+        setUsers(filteredUsers);
+        console.log(users);
+      })
+      .catch((error) => {
+        setOpen(true);
+        setMessage(error.message);
+      });
   }
 
   return (
@@ -171,6 +202,21 @@ function Chat() {
                   userId={user?.id ?? ""}
                 />
               ))}
+            {users && (
+              <>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#e8e8e8",
+                  }}
+                >
+                  Users
+                </Box>
+                {users.map((user) => user.id)}
+              </>
+            )}
           </List>
         </Grid>
         <Grid item xs={13}>

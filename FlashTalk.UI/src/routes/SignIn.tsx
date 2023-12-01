@@ -1,4 +1,5 @@
 import * as React from "react";
+import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
 import LoadingButton from "@mui/lab/LoadingButton";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,6 +17,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { useNavigate } from "react-router-dom";
+import { AppBar, Toolbar } from "@mui/material";
 
 const defaultTheme = createTheme();
 
@@ -58,6 +60,16 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <AppBar position="relative">
+        <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <ChatIcon sx={{ mr: 2 }} />
+            <Typography variant="h6" color="inherit" noWrap>
+              FlashTalk
+            </Typography>
+          </div>
+        </Toolbar>
+      </AppBar>
       <Container component="main" maxWidth="xs">
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
