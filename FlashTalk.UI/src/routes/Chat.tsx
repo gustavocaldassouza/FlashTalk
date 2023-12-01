@@ -105,7 +105,10 @@ function Chat() {
   function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
     const searchValue = (e.target as HTMLInputElement).value;
     const filteredChats = chats.filter((chat) =>
-      chat.name.toLowerCase().includes(searchValue.toLowerCase())
+      chat.participants
+        .find((p) => p.id != user?.id)
+        ?.name?.toLowerCase()
+        .includes(searchValue.toLowerCase())
     );
 
     setFilteredChats(filteredChats);
