@@ -45,6 +45,9 @@ CREATE TABLE [dbo].participant
 INSERT INTO [dbo].userd (name, email, password) VALUES ('João', 'joao@email.com', '123');
 INSERT INTO [dbo].userd (name, email, password) VALUES ('Maria', 'maria@email.com', '123');
 INSERT INTO [dbo].userd (name, email, password) VALUES ('José', 'jose@email.com', '123');
+INSERT INTO [dbo].userd (name, email, password) VALUES ('Ana', 'ana@email.com', '123');
+INSERT INTO [dbo].userd (name, email, password) VALUES ('Pedro', 'pedro@email.com', '123');
+INSERT INTO [dbo].userd (name, email, password) VALUES ('Paulo', 'paulo@email.com', '123');
 
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 1', 1);
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 2', 2);
