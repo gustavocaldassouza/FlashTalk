@@ -1,10 +1,9 @@
 import * as React from "react";
 import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -12,17 +11,39 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AppBar, Toolbar } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+  const { email } = useParams();
+  const [loading, setLoading] = React.useState(false);
+  const [emailField, setEmailField] = React.useState("");
+  const [emailError, setEmailError] = React.useState("");
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log(email);
+    console.log(emailField);
+
     const data = new FormData(event.currentTarget);
+
+    const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email || emailField)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+    setEmailField("");
+    setEmailError("");
     console.log({
       email: data.get("email"),
       password: data.get("password"),
     });
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
   };
 
   return (
@@ -82,14 +103,21 @@ export default function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmailField(e.target.value)}
+                    error={!!emailError}
+                    helperText={emailError}
+                  />
+                </Grid>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -103,14 +131,15 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
-            <Button
+            <LoadingButton
               type="submit"
               fullWidth
               variant="contained"
+              loading={loading}
               sx={{ mt: 3, mb: 2 }}
             >
               Sign Up
-            </Button>
+            </LoadingButton>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link to="/signin">Already have an account? Sign in</Link>

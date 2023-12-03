@@ -9,12 +9,21 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import ChatIcon from "@mui/icons-material/Chat";
 import Toolbar from "@mui/material/Toolbar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
+import React from "react";
 
 const defaultTheme = createTheme();
 
 export default function Home() {
+  const [email, setEmail] = React.useState("");
+  const navigate = useNavigate();
+
+  function handleSignUpClick(): void {
+    console.log(email);
+    navigate("/signup/" + email);
+  }
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -91,16 +100,18 @@ export default function Home() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <Link to="/signup">
-                <Button
-                  style={{ marginTop: 2 }}
-                  variant="contained"
-                  endIcon={<SendIcon />}
-                >
-                  Sign Up
-                </Button>
-              </Link>
+
+              <Button
+                style={{ marginTop: 2 }}
+                variant="contained"
+                endIcon={<SendIcon />}
+                onClick={handleSignUpClick}
+              >
+                Sign Up
+              </Button>
             </Stack>
           </Container>
         </Box>
