@@ -68,12 +68,25 @@ function Chat() {
       });
   }
 
-  useEffect(() => {
-    function handleGetUserInfo() {
-      const userResp = getUserInfo(userid ?? "");
-      setUser(userResp);
-    }
+  function handleGetUserInfo() {
+    getUserInfo(userid ?? "")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setUser(data);
+      })
+      .catch((error) => {
+        setOpen(true);
+        setMessage(error.message);
+      });
+  }
 
+  useEffect(() => {
     handleGetMessages();
     handleGetUserInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
