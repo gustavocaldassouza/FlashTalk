@@ -100,7 +100,7 @@ export default function SignUp() {
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
-          severity={alertSeverity as AlertColor}
+          severity={alertSeverity as AlertColor || 'error'}
           sx={{ width: "100%" }}
         >
           <AlertTitle>{alertTitle}</AlertTitle>

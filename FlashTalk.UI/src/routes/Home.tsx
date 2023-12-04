@@ -19,11 +19,6 @@ export default function Home() {
   const [email, setEmail] = React.useState("");
   const navigate = useNavigate();
 
-  function handleSignUpClick(): void {
-    console.log(email);
-    navigate("/signup/" + email);
-  }
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -108,7 +103,7 @@ export default function Home() {
                 style={{ marginTop: 2 }}
                 variant="contained"
                 endIcon={<SendIcon />}
-                onClick={handleSignUpClick}
+                onClick={() => navigate("/signup/" + email)}
               >
                 Sign Up
               </Button>
