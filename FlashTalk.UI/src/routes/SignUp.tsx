@@ -1,32 +1,115 @@
-import * as React from "react";
 import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { AppBar, Toolbar } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  AlertTitle,
+  AppBar,
+  Button,
+  Snackbar,
+  Toolbar,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { registerUser } from "../services/UserService";
+import { User } from "../models/User";
+import React from "react";
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+  const { email } = useParams();
+  const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [alertTitle, setAlertTitle] = React.useState("");
+  const [alertSeverity, setAlertSeverity] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [emailField, setEmailField] = React.useState("");
+  const [emailError, setEmailError] = React.useState("");
+  const navigate = useNavigate();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email || emailField)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+    const user: User = {
+      id: "0",
+      email: data.get("email")?.toString() || "",
+      password: data.get("password")?.toString() || "",
+      name:
+        data.get("firstName")?.toString() +
+        " " +
+        data.get("lastName")?.toString(),
+    };
+
+    console.log(user);
+
+    registerUser(user)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(() => {
+        setLoading(false);
+        setEmailField("");
+        setEmailError("");
+        setAlertSeverity("success");
+        setAlertTitle("Success");
+        setMessage("User successfully created");
+        setOpen(true);
+      })
+      .catch((error) => {
+        setAlertSeverity("error");
+        setAlertTitle("Error");
+        setOpen(true);
+        setMessage(error.message);
+        setLoading(false);
+      });
+  };
+
+  const handleClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={alertSeverity as AlertColor}
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>{alertTitle}</AlertTitle>
+          <Typography>{message}</Typography>
+          <Button variant="outlined" onClick={() => navigate("/signin")}>
+            Go to SignUp
+          </Button>
+        </Alert>
+      </Snackbar>
       <AppBar position="relative">
         <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "row" }}>
@@ -53,12 +136,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -82,14 +160,21 @@ export default function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmailField(e.target.value)}
+                    error={!!emailError}
+                    helperText={emailError}
+                  />
+                </Grid>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -103,14 +188,15 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
-            <Button
+            <LoadingButton
               type="submit"
               fullWidth
               variant="contained"
+              loading={loading}
               sx={{ mt: 3, mb: 2 }}
             >
               Sign Up
-            </Button>
+            </LoadingButton>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link to="/signin">Already have an account? Sign in</Link>
