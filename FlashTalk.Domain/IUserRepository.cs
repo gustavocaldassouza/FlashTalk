@@ -7,5 +7,7 @@ namespace FlashTalk.Domain
     IEnumerable<User> GetUsersByName(string name);
 
     User Register(string name, string email, string password);
+
+    User GetUserInfo(int userId);
   }
 }

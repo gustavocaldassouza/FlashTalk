@@ -15,6 +15,19 @@ namespace FlashTalk.Infrastructure
       _connectionString = configuration.GetConnectionString("FlashTalkDb") ?? throw new ArgumentNullException("FLASH_TALK_CONNECTION_STRING");
     }
 
+    public User GetUserInfo(int userId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT id, name, email FROM userd WHERE id = @Id";
+        var parameters = new { Id = userId };
+
+        return connection.QueryFirst<User>(query, parameters);
+      }
+    }
+
     public IEnumerable<User> GetUsersByName(string name)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
