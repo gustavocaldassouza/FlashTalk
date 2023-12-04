@@ -1,25 +1,40 @@
-import * as React from "react";
 import ChatIcon from "@mui/icons-material/Chat";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { AppBar, Toolbar } from "@mui/material";
+import {
+  Alert,
+  AlertColor,
+  AlertTitle,
+  AppBar,
+  Button,
+  Snackbar,
+  Toolbar,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { registerUser } from "../services/UserService";
+import { User } from "../models/User";
+import React from "react";
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
   const { email } = useParams();
+  const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [alertTitle, setAlertTitle] = React.useState("");
+  const [alertSeverity, setAlertSeverity] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [emailField, setEmailField] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,23 +47,69 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    setEmailField("");
-    setEmailError("");
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-      firstname: data.get("firstName"),
-      lastname: data.get("lastName"),
-    });
-    console.log(data);
+    const user: User = {
+      id: "0",
+      email: data.get("email")?.toString() || "",
+      password: data.get("password")?.toString() || "",
+      name:
+        data.get("firstName")?.toString() +
+        " " +
+        data.get("lastName")?.toString(),
+    };
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    console.log(user);
+
+    registerUser(user)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(() => {
+        setLoading(false);
+        setEmailField("");
+        setEmailError("");
+        setAlertSeverity("success");
+        setAlertTitle("Success");
+        setMessage("User successfully created");
+        setOpen(true);
+      })
+      .catch((error) => {
+        setAlertSeverity("error");
+        setAlertTitle("Error");
+        setOpen(true);
+        setMessage(error.message);
+        setLoading(false);
+      });
+  };
+
+  const handleClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={alertSeverity as AlertColor}
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>{alertTitle}</AlertTitle>
+          <Typography>{message}</Typography>
+          <Button variant="outlined" onClick={() => navigate("/signin")}>
+            Go to SignUp
+          </Button>
+        </Alert>
+      </Snackbar>
       <AppBar position="relative">
         <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "row" }}>
