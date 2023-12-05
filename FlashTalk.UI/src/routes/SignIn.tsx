@@ -13,38 +13,60 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import Alert, { AlertColor } from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { useNavigate } from "react-router-dom";
-import { AppBar, Toolbar } from "@mui/material";
+import { AppBar, Button, Toolbar } from "@mui/material";
 import { Link } from "react-router-dom";
+import { User } from "../models/User";
+import { authenticateUser } from "../services/UserService";
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [loading, setLoading] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [alertTitle, setAlertTitle] = React.useState("");
+  const [alertSeverity, setAlertSeverity] = React.useState("");
   const [message, setMessage] = React.useState("");
   const navigate = useNavigate();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    setLoading(true);
-    // .catch((error) => {
-    //   console.log(error);
-    //   // setOpen(true);
-    //   // setMessage(error.message);
-    // });
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-    setMessage("Invalid email or password");
-    setTimeout(() => {
-      const userId = 1;
-      navigate("/chat/" + userId);
-    }, 2000);
+
+    const user: User = {
+      id: "0",
+      name: "example",
+      email: data.get("email")?.toString() || "",
+      password: data.get("password")?.toString() || "",
+    };
+
+    setLoading(true);
+
+    authenticateUser(user)
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setLoading(false);
+        navigate("/chat/" + data.id); //TODO: PASS TOKEN HERE!
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log(error);
+
+        error.text().then((message: string) => {
+          setAlertSeverity("error");
+          setAlertTitle("Error");
+          setOpen(true);
+          setMessage(`${message}`);
+          setLoading(false);
+        });
+      });
   }
 
   const handleClose = (
@@ -60,6 +82,21 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={(alertSeverity as AlertColor) || "error"}
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>{alertTitle}</AlertTitle>
+          <Typography>{message}</Typography>
+          {alertSeverity === "success" && (
+            <Button variant="outlined" onClick={() => navigate("/signin")}>
+              Go to Sign In
+            </Button>
+          )}
+        </Alert>
+      </Snackbar>
       <AppBar position="relative">
         <Toolbar style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ display: "flex", flexDirection: "row" }}>

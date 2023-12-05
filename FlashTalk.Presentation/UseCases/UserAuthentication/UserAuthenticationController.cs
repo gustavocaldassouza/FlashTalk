@@ -29,7 +29,7 @@ namespace FlashTalk.Presentation.UseCases.UserAuthentication
     void IOutputPort.Ok(User user)
     {
       var token = _jwtUtils.GenerateJwtToken(user);
-      _viewModel = Ok(token);
+      _viewModel = Ok(new { token, user.Id });
     }
 
     [HttpPost()]

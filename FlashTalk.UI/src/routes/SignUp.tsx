@@ -57,12 +57,10 @@ export default function SignUp() {
         data.get("lastName")?.toString(),
     };
 
-    console.log(user);
-
     registerUser(user)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw response;
         }
         return response.json();
       })
@@ -76,11 +74,13 @@ export default function SignUp() {
         setOpen(true);
       })
       .catch((error) => {
-        setAlertSeverity("error");
-        setAlertTitle("Error");
-        setOpen(true);
-        setMessage(error.message);
-        setLoading(false);
+        error.text().then((message: string) => {
+          setAlertSeverity("error");
+          setAlertTitle("Error");
+          setOpen(true);
+          setMessage(`${message}`);
+          setLoading(false);
+        });
       });
   };
 
@@ -100,14 +100,16 @@ export default function SignUp() {
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
-          severity={alertSeverity as AlertColor || 'error'}
+          severity={(alertSeverity as AlertColor) || "error"}
           sx={{ width: "100%" }}
         >
           <AlertTitle>{alertTitle}</AlertTitle>
           <Typography>{message}</Typography>
-          <Button variant="outlined" onClick={() => navigate("/signin")}>
-            Go to SignUp
-          </Button>
+          {alertSeverity === "success" && (
+            <Button variant="outlined" onClick={() => navigate("/signin")}>
+              Go to Sign In
+            </Button>
+          )}
         </Alert>
       </Snackbar>
       <AppBar position="relative">

@@ -17,3 +17,13 @@ export function registerUser(user: User): Promise<Response> {
     body: JSON.stringify(user),
   });
 }
+
+export function authenticateUser(user: User): Promise<Response> {
+  return fetch(`${import.meta.env.VITE_API_URL}/userauthentication`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
+  });
+}
