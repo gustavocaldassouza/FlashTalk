@@ -10,6 +10,8 @@ namespace FlashTalk.Domain
 
     User GetUserInfo(int userId);
 
+    User GetUserByEmail(string email);
+
     bool IsEmailTaken(string email);
   }
 }
