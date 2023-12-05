@@ -41,6 +41,20 @@ namespace FlashTalk.Infrastructure
       }
     }
 
+    public bool IsEmailTaken(string email)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT COUNT(*) FROM userd WHERE email = @Email";
+        var parameters = new { Email = email };
+
+        int count = connection.ExecuteScalar<int>(query, parameters);
+
+        return count > 0;
+      }
+    }
 
     public User Register(string name, string email, string password)
     {
