@@ -1,5 +1,6 @@
 using FlashTalk.Application.UseCases.MessageReceiving;
 using FlashTalk.Application.UseCases.MessageSending;
+using FlashTalk.Application.UseCases.UserAuthentication;
 using FlashTalk.Application.UseCases.UserInfo;
 using FlashTalk.Application.UseCases.UserRegistration;
 using FlashTalk.Application.UseCases.UserSearch;
@@ -16,6 +17,7 @@ namespace FlashTalk.Presentation
       services.AddScoped<IChatRepository, ChatRepository>();
 
       services.AddScoped<IUserRegistration, UserRegistration>();
+      services.AddScoped<IUserAuthentication, UserAuthentication>();
       services.AddScoped<IUserSearch, UserSearch>();
       services.AddScoped<IUserInfo, UserInfo>();
       services.AddScoped<IMessageSending, MessageSending>();

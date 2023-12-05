@@ -1,12 +1,14 @@
 using System;
 using FlashTalk.Application.UseCases.UserSearch;
 using FlashTalk.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashTalk.Presentation.UseCases.UserSearch
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class UserSearchController : ControllerBase, IOutputPort
   {
     private IActionResult? _viewModel;
