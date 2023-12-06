@@ -31,7 +31,7 @@ import UserItem from "../components/UserItem";
 
 const defaultTheme = createTheme();
 
-function Chat() {
+export default function Chat() {
   const [user, setUser] = useState<User>();
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
@@ -134,6 +134,7 @@ function Chat() {
     });
 
     setChats(updatedChats);
+    setFilteredChats(updatedChats);
   }
 
   function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
@@ -330,5 +331,3 @@ function Chat() {
     </>
   );
 }
-
-export default Chat;

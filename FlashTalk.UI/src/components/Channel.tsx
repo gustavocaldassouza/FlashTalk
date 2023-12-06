@@ -15,7 +15,7 @@ interface ChannelProps {
   token: string;
 }
 
-function Channel({
+export default function Channel({
   chat,
   userId,
   handleErrorAlert,
@@ -101,5 +101,3 @@ function Channel({
     </Stack>
   );
 }
-
-export default Channel;
