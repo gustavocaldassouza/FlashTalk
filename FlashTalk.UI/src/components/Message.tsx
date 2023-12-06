@@ -40,6 +40,7 @@ export default function Message({ message, userId }: MessageProps) {
           width={"85px"}
           marginTop={"15px"}
           marginRight={"10px"}
+          color={message.sender.id == userId ? "white" : "#9e9e9e"}
         >
           {new Date(message.createdAt).toLocaleString("en-US", {
             hour: "2-digit",

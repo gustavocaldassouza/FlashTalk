@@ -37,7 +37,17 @@ export default function ChannelItem({
             </ListItemAvatar>
             <ListItemText
               primary={chat.participants.find((p) => p.id != userId)?.name}
-              secondary={chat.messages[chat.messages.length - 1]?.text ?? ""}
+              secondary={
+                <>
+                  {chat.messages[chat.messages.length - 1]?.sender.id ===
+                  userId ? (
+                    <strong>You: </strong>
+                  ) : (
+                    ""
+                  )}
+                  {chat.messages[chat.messages.length - 1]?.text ?? ""}
+                </>
+              }
               secondaryTypographyProps={{
                 textOverflow: "ellipsis",
                 overflow: "hidden",
