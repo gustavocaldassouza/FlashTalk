@@ -47,9 +47,6 @@ export default function ChannelItem({
               secondary={new Date(chat.createdAt).toLocaleString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
               })}
               secondaryTypographyProps={{
                 fontSize: "0.8rem",

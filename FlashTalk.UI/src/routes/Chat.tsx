@@ -16,7 +16,9 @@ import {
   TextField,
   ThemeProvider,
   Toolbar,
+  Tooltip,
   Typography,
+  Zoom,
   createTheme,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -39,6 +41,15 @@ function Chat() {
   const [users, setUsers] = useState<User[]>();
   const [token, setToken] = useState<string>("");
   const location = useLocation();
+
+  useEffect(() => {
+    if (location.state.token) {
+      setToken(location.state.token);
+      handleGetMessages(location.state.token);
+      handleGetUserInfo(location.state.token);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.token]); // Only re-run the effect if token changes
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -85,15 +96,6 @@ function Chat() {
         setMessage(error.message);
       });
   }
-
-  useEffect(() => {
-    if (location.state.token) {
-      setToken(location.state.token);
-      handleGetMessages(location.state.token);
-      handleGetUserInfo(location.state.token);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state?.token]); // Only re-run the effect if token changes
 
   function handleChannelItemClick(
     _event: MouseEvent<HTMLDivElement>,
@@ -205,7 +207,24 @@ function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Avatar>{user?.name[0]}</Avatar>
+                <Tooltip
+                  TransitionComponent={Zoom}
+                  title={
+                    <>
+                      <Typography color="inherit">
+                        User Id: {user?.id}
+                      </Typography>
+                      <Typography color="inherit">
+                        Name: {user?.name}
+                      </Typography>
+                      <Typography color="inherit">
+                        Email: {user?.email}
+                      </Typography>
+                    </>
+                  }
+                >
+                  <Avatar>{user?.name[0]}</Avatar>
+                </Tooltip>
               </Toolbar>
             </AppBar>
           </ThemeProvider>
