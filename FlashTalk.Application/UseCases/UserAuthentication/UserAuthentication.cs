@@ -16,11 +16,16 @@ namespace FlashTalk.Application.UseCases.UserAuthentication
     {
       try
       {
-        var user = _userRepository.Authenticate(email, password);
+        User? user = _userRepository.GetUserByEmail(email);
 
         if (user == null)
         {
           _outputPort.Error("User not found");
+          return;
+        }
+        if (user.Password != password)
+        {
+          _outputPort.Error("Invalid password");
           return;
         }
 
