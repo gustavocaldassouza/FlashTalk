@@ -70,9 +70,7 @@ export default function Channel({
       <ChannelBar chat={chat} userId={userId}></ChannelBar>
       <Box height="calc(100vh - 121px)" overflow={"auto"}>
         {messages.map((message) => (
-          <Box key={message.id}>
-            <Message message={message} userId={userId} />
-          </Box>
+          <Message key={message.id} message={message} userId={userId} />
         ))}
         <Box ref={messagesEndRef} />
       </Box>
