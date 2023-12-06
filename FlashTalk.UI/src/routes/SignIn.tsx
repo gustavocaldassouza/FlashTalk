@@ -53,7 +53,7 @@ export default function SignIn() {
       })
       .then((data) => {
         setLoading(false);
-        navigate("/chat/" + data.id); //TODO: PASS TOKEN HERE!
+        navigate("/chat/", { state: { token: data.token } });
       })
       .catch((error) => {
         setLoading(false);
