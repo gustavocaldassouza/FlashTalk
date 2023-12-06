@@ -15,6 +15,32 @@ namespace FlashTalk.Infrastructure
       _connectionString = configuration.GetConnectionString("FlashTalkDb") ?? throw new ArgumentNullException("FLASH_TALK_CONNECTION_STRING");
     }
 
+    public User Authenticate(string email, string password)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT id, name, email FROM userd WHERE email = @Email AND password = @Password";
+        var parameters = new { Email = email, Password = password };
+
+        return connection.QueryFirstOrDefault<User>(query, parameters)!;
+      }
+    }
+
+    public User GetUserByEmail(string email)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = "SELECT id, name, email FROM userd WHERE email = @Email";
+        var parameters = new { Email = email };
+
+        return connection.QueryFirst<User>(query, parameters);
+      }
+    }
+
     public User GetUserInfo(int userId)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
@@ -28,14 +54,14 @@ namespace FlashTalk.Infrastructure
       }
     }
 
-    public IEnumerable<User> GetUsersByName(string name)
+    public IEnumerable<User> GetUsersByName(string name, int userId)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
       {
         connection.Open();
 
-        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name";
-        var parameters = new { Name = $"%{name}%" };
+        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name AND id != @UserId";
+        var parameters = new { Name = $"%{name}%", UserId = userId };
 
         return connection.Query<User>(query, parameters);
       }

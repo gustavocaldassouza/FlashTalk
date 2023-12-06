@@ -2,12 +2,14 @@ using System;
 using FlashTalk.Application.UseCases.MessageSending;
 using FlashTalk.Domain;
 using FlashTalk.Presentation.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashTalk.Presentation.UseCases.MessageSending
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class MessageSendingController : ControllerBase, IOutputPort
   {
     private readonly IMessageSending _messageSending;
@@ -31,7 +33,8 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
     [HttpPost]
     public IActionResult Post([FromBody] MessageSendingModel messageSendingModel)
     {
-      _messageSending.Execute(messageSendingModel.SenderId!,
+      var senderId = int.Parse(User.Claims.First().Value);
+      _messageSending.Execute(senderId!,
                               messageSendingModel.ReceiverId!,
                               messageSendingModel.Message!);
       return _viewModel!;

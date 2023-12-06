@@ -1,12 +1,14 @@
 using System;
 using FlashTalk.Application.UseCases.UserSearch;
 using FlashTalk.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashTalk.Presentation.UseCases.UserSearch
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class UserSearchController : ControllerBase, IOutputPort
   {
     private IActionResult? _viewModel;
@@ -29,7 +31,8 @@ namespace FlashTalk.Presentation.UseCases.UserSearch
     [HttpGet]
     public IActionResult Get([FromQuery] string name)
     {
-      _userSearch.Execute(name);
+      var userId = int.Parse(User.Claims.First().Value);
+      _userSearch.Execute(name, userId);
       return _viewModel!;
     }
   }

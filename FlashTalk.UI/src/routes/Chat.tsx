@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -30,7 +30,6 @@ import UserItem from "../components/UserItem";
 const defaultTheme = createTheme();
 
 function Chat() {
-  const { userid } = useParams();
   const [user, setUser] = useState<User>();
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
@@ -38,6 +37,8 @@ function Chat() {
   const [chats, setChats] = useState<ChatModel[]>([]);
   const [filteredChats, setFilteredChats] = useState<ChatModel[]>([]);
   const [users, setUsers] = useState<User[]>();
+  const [token, setToken] = useState<string>("");
+  const location = useLocation();
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -50,8 +51,8 @@ function Chat() {
     setOpen(false);
   };
 
-  function handleGetMessages() {
-    getMessages(userid ?? "")
+  function handleGetMessages(tokenJWT?: string | undefined) {
+    getMessages(tokenJWT ?? token)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,8 +69,8 @@ function Chat() {
       });
   }
 
-  function handleGetUserInfo() {
-    getUserInfo(userid ?? "")
+  function handleGetUserInfo(tokenJWT?: string | undefined) {
+    getUserInfo(tokenJWT ?? token)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -77,7 +78,6 @@ function Chat() {
         return response.json();
       })
       .then((data) => {
-        console.log(data);
         setUser(data);
       })
       .catch((error) => {
@@ -87,10 +87,13 @@ function Chat() {
   }
 
   useEffect(() => {
-    handleGetMessages();
-    handleGetUserInfo();
+    if (location.state.token) {
+      setToken(location.state.token);
+      handleGetMessages(location.state.token);
+      handleGetUserInfo(location.state.token);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userid]); // Only re-run the effect if userId changes
+  }, [location.state?.token]); // Only re-run the effect if token changes
 
   function handleChannelItemClick(
     _event: MouseEvent<HTMLDivElement>,
@@ -153,7 +156,7 @@ function Chat() {
   }
 
   function handleGetUsers(userName: string) {
-    getUsers(userName)
+    getUsers(userName, token)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -290,6 +293,7 @@ function Chat() {
                 userId={user.id}
                 handleErrorAlert={handleErrorAlert}
                 updateMessages={updateMessages}
+                token={token}
               />
             )}
           </Paper>

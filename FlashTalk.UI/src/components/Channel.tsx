@@ -12,6 +12,7 @@ interface ChannelProps {
   userId: string;
   handleErrorAlert: (message: string) => void;
   updateMessages: (chatId: string, messages: MessageModel[]) => void;
+  token: string;
 }
 
 function Channel({
@@ -19,6 +20,7 @@ function Channel({
   userId,
   handleErrorAlert,
   updateMessages,
+  token,
 }: ChannelProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(chat.messages);
@@ -43,7 +45,8 @@ function Channel({
     sendMessage(
       message,
       parseInt(userId),
-      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1")
+      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1"),
+      token
     )
       .then((response) => {
         if (!response.ok) {

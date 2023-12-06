@@ -1,12 +1,14 @@
 using System;
 using FlashTalk.Application.UseCases.UserInfo;
 using FlashTalk.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashTalk.Presentation.UseCases.UserInfo
 {
   [ApiController]
   [Route("api/[controller]")]
+  [Authorize]
   public class UserInfoController : ControllerBase, IOutputPort
   {
     private IActionResult? _viewModel;
@@ -29,8 +31,9 @@ namespace FlashTalk.Presentation.UseCases.UserInfo
     }
 
     [HttpGet]
-    public IActionResult Get([FromQuery] int userId)
+    public IActionResult Get()
     {
+      var userId = int.Parse(User.Claims.First().Value);
       _userInfo.Execute(userId);
       return _viewModel!;
     }
