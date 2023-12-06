@@ -34,6 +34,7 @@ export default function SignUp() {
   const [loading, setLoading] = React.useState(false);
   const [emailField, setEmailField] = React.useState("");
   const [emailError, setEmailError] = React.useState("");
+  const [passwordError, setPasswordError] = React.useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -44,6 +45,16 @@ export default function SignUp() {
     if (!emailRegex.test(email || emailField)) {
       setEmailError("Please enter a valid email address");
       return;
+    }
+
+    if (
+      data.get("password")?.toString() !==
+      data.get("repeat-password")?.toString()
+    ) {
+      setPasswordError("Passwords do not match");
+      return;
+    } else {
+      setPasswordError("");
     }
 
     setLoading(true);
@@ -187,6 +198,19 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="repeat-password"
+                  label="Repeat Password"
+                  type="password"
+                  id="repeat-password"
+                  autoComplete="repeat-password"
+                  error={!!passwordError}
+                  helperText={passwordError}
                 />
               </Grid>
             </Grid>
