@@ -4,7 +4,7 @@ namespace FlashTalk.Domain
 {
   public interface IUserRepository
   {
-    IEnumerable<User> GetUsersByName(string name);
+    IEnumerable<User> GetUsersByName(string name, int userId);
 
     User Register(string name, string email, string password);
 

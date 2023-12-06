@@ -31,7 +31,8 @@ namespace FlashTalk.Presentation.UseCases.UserSearch
     [HttpGet]
     public IActionResult Get([FromQuery] string name)
     {
-      _userSearch.Execute(name);
+      var userId = int.Parse(User.Claims.First().Value);
+      _userSearch.Execute(name, userId);
       return _viewModel!;
     }
   }

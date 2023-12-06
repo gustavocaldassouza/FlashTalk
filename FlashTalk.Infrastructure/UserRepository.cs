@@ -54,14 +54,14 @@ namespace FlashTalk.Infrastructure
       }
     }
 
-    public IEnumerable<User> GetUsersByName(string name)
+    public IEnumerable<User> GetUsersByName(string name, int userId)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
       {
         connection.Open();
 
-        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name";
-        var parameters = new { Name = $"%{name}%" };
+        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name AND id != @UserId";
+        var parameters = new { Name = $"%{name}%", UserId = userId };
 
         return connection.Query<User>(query, parameters);
       }

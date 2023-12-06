@@ -57,8 +57,6 @@ export default function SignIn() {
       })
       .catch((error) => {
         setLoading(false);
-        console.log(error);
-
         error.text().then((message: string) => {
           setAlertSeverity("error");
           setAlertTitle("Error");

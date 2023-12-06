@@ -12,11 +12,11 @@ namespace FlashTalk.Application.UseCases.UserSearch
       _userRepository = userRepository;
       _outputPort = new UserSearchPresenter();
     }
-    public void Execute(string name)
+    public void Execute(string name, int userId)
     {
       try
       {
-        var users = _userRepository.GetUsersByName(name);
+        var users = _userRepository.GetUsersByName(name, userId);
         _outputPort.Ok(users);
       }
       catch (Exception e)
