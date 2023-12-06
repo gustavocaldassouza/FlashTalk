@@ -246,6 +246,15 @@ function Chat() {
                 handleContactSearch(e);
               }}
             />
+            {filteredChats.length === 0 && !users && (
+              <Typography
+                textAlign={"center"}
+                marginTop={"20px"}
+                color={"#a9a9a9"}
+              >
+                Search for a contact to start
+              </Typography>
+            )}
             {filteredChats &&
               [...filteredChats]
                 .sort(
