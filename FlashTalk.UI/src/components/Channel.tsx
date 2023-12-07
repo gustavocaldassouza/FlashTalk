@@ -45,7 +45,7 @@ export default function Channel({
     sendMessage(
       message,
       parseInt(userId),
-      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? "1"),
+      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? ""),
       token
     )
       .then((response) => {
@@ -69,9 +69,14 @@ export default function Channel({
     <Stack spacing={1}>
       <ChannelBar chat={chat} userId={userId}></ChannelBar>
       <Box height="calc(100vh - 121px)" overflow={"auto"}>
-        {messages.map((message) => (
-          <Message key={message.id} message={message} userId={userId} />
-        ))}
+        {[...messages]
+          .sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          )
+          .map((message) => (
+            <Message key={message.id} message={message} userId={userId} />
+          ))}
         <Box ref={messagesEndRef} />
       </Box>
       <Box sx={{ backgroundColor: "#f5f5f5" }}>

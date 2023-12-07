@@ -45,11 +45,22 @@ export default function Chat() {
   useEffect(() => {
     if (location.state.token) {
       setToken(location.state.token);
-      handleGetMessages(location.state.token);
       handleGetUserInfo(location.state.token);
+      handleGetMessages(location.state.token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.token]); // Only re-run the effect if token changes
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleGetMessages(location.state.token);
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
