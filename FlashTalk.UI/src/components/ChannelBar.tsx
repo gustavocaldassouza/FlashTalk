@@ -21,7 +21,14 @@ export default function ChannelBar({ chat, userId }: ChannelBarProps) {
             flexDirection: "row",
           }}
         >
-          <Avatar sx={{ marginRight: 2, marginTop: "8px" }}>
+          <Avatar
+            sx={{
+              marginRight: 2,
+              marginTop: "8px",
+              backgroundColor: chat.participants.find((p) => p.id != userId)
+                ?.color,
+            }}
+          >
             {chat.participants.find((p) => p.id != userId)?.name?.[0]}
           </Avatar>
           <ListItemText

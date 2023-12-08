@@ -232,6 +232,7 @@ namespace FlashTalk.Infrastructure
         string query = @"SELECT USERD.ID USER_ID
                               , USERD.NAME USER_NAME
                               , USERD.EMAIL USER_EMAIL
+                              , USERD.COLOR USER_COLOR
                            FROM PARTICIPANT PART
                            JOIN USERD USERD ON USERD.ID = PART.USER_ID
                           WHERE PART.CHAT_ID = @ChatId;";
@@ -242,7 +243,8 @@ namespace FlashTalk.Infrastructure
                       {
                         Id = row.USER_ID,
                         Name = row.USER_NAME,
-                        Email = row.USER_EMAIL
+                        Email = row.USER_EMAIL,
+                        Color = row.USER_COLOR
                       }).ToList();
 
         return participants;

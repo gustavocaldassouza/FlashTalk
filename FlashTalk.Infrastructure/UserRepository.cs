@@ -21,7 +21,7 @@ namespace FlashTalk.Infrastructure
       {
         connection.Open();
 
-        string query = "SELECT id, name, email, password FROM userd WHERE email = @Email";
+        string query = "SELECT id, name, email, password, color FROM userd WHERE email = @Email";
         var parameters = new { Email = email };
 
         return connection.QueryFirstOrDefault<User>(query, parameters);
@@ -34,7 +34,7 @@ namespace FlashTalk.Infrastructure
       {
         connection.Open();
 
-        string query = "SELECT id, name, email FROM userd WHERE id = @Id";
+        string query = "SELECT id, name, email, color FROM userd WHERE id = @Id";
         var parameters = new { Id = userId };
 
         return connection.QueryFirst<User>(query, parameters);
@@ -47,7 +47,7 @@ namespace FlashTalk.Infrastructure
       {
         connection.Open();
 
-        string query = "SELECT id, name, email FROM userd WHERE name LIKE @Name AND id != @UserId";
+        string query = "SELECT id, name, email, color FROM userd WHERE name LIKE @Name AND id != @UserId";
         var parameters = new { Name = $"%{name}%", UserId = userId };
 
         return connection.Query<User>(query, parameters);
@@ -69,15 +69,15 @@ namespace FlashTalk.Infrastructure
       }
     }
 
-    public User Register(string name, string email, string password)
+    public User Register(string name, string email, string password, string color)
     {
       int id = 0;
       using (IDbConnection connection = new SqlConnection(_connectionString))
       {
         connection.Open();
 
-        string query = "INSERT INTO userd (name, email, password) OUTPUT INSERTED.id VALUES (@Name, @Email, @Password)";
-        var parameters = new { Name = name, Email = email, Password = password };
+        string query = "INSERT INTO userd (name, email, password, color) OUTPUT INSERTED.id VALUES (@Name, @Email, @Password, @Color)";
+        var parameters = new { Name = name, Email = email, Password = password, Color = color };
 
         id = connection.ExecuteScalar<int>(query, parameters);
       }
@@ -92,7 +92,7 @@ namespace FlashTalk.Infrastructure
       {
         connection.Open();
 
-        string query = "SELECT id, name, email FROM userd WHERE id = @Id";
+        string query = "SELECT id, name, email, color FROM userd WHERE id = @Id";
         var parameters = new { Id = id };
 
         return connection.QueryFirst<User>(query, parameters);

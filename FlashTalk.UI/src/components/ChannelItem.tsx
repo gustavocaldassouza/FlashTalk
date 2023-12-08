@@ -31,7 +31,12 @@ export default function ChannelItem({
             onClick={(event) => handleChannelItemClick(event, chat.id)}
           >
             <ListItemAvatar>
-              <Avatar>
+              <Avatar
+                sx={{
+                  backgroundColor: chat.participants.find((p) => p.id != userId)
+                    ?.color,
+                }}
+              >
                 {chat.participants.find((p) => p.id != userId)?.name?.[0]}
               </Avatar>
             </ListItemAvatar>

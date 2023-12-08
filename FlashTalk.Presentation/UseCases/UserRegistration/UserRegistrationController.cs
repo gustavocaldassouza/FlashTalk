@@ -32,7 +32,7 @@ namespace FlashTalk.Presentation.UseCases.UserRegistration
     [HttpPost]
     public IActionResult Post([FromBody] UserModel userModel)
     {
-      _userRegistration.Execute(userModel.Name!, userModel.Email!, userModel.Password!);
+      _userRegistration.Execute(userModel.Name!, userModel.Email!, userModel.Password!, userModel.Color!);
       return _viewModel!;
     }
   }

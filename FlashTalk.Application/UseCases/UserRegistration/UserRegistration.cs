@@ -12,13 +12,13 @@ namespace FlashTalk.Application.UseCases.UserRegistration
       _outputPort = new UserRegistrationPresenter();
       _userRepository = userRepository;
     }
-    public void Execute(string name, string email, string password)
+    public void Execute(string name, string email, string password, string color)
     {
       try
       {
         if (_userRepository.IsEmailTaken(email))
           throw new Exception("Email is already taken");
-        var user = _userRepository.Register(name, email, password);
+        var user = _userRepository.Register(name, email, password, color);
         _outputPort.Ok(user);
       }
       catch (Exception ex)

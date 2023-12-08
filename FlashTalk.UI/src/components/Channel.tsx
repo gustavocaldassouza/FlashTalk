@@ -11,7 +11,11 @@ interface ChannelProps {
   chat: Chat;
   userId: string;
   handleErrorAlert: (message: string) => void;
-  updateMessages: (chatId: string, messages: MessageModel[]) => void;
+  updateMessages: (
+    chatId: string,
+    messages: MessageModel[],
+    chat?: Chat
+  ) => void;
   token: string;
 }
 
@@ -24,19 +28,24 @@ export default function Channel({
 }: ChannelProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(chat.messages);
+  const [newChat, setNewChat] = useState();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (chat.messages.length > messages.length) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat.id, chat.messages]);
+  }, [messages]);
+
+  useEffect(() => {
+    updateMessages(chat.id, messages, newChat);
+    setNewChat(undefined); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newChat]);
 
   useEffect(() => {
     setMessages(chat.messages);
-  }, [chat]);
+  }, [chat.messages]);
 
   useEffect(() => {
     setMessage("");
@@ -64,6 +73,9 @@ export default function Channel({
           (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
         )[0];
         setMessages([...messages, newMessage as MessageModel]);
+        if (chat.id === "0") {
+          setNewChat(data);
+        }
       })
       .catch((error) => {
         handleErrorAlert(error.message);
