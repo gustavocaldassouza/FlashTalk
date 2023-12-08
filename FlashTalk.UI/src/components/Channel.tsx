@@ -27,10 +27,12 @@ export default function Channel({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    if (chat.messages.length > messages.length) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat.id, messages]);
+  }, [chat.id, chat.messages]);
 
   useEffect(() => {
     setMessages(chat.messages);
