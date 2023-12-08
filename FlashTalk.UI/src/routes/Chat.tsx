@@ -52,16 +52,21 @@ export default function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.token]); // Only re-run the effect if token changes
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     handleGetMessages(location.state.token);
-  //   }, 4000);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleGetMessages(location.state.token);
+      if (channelSelected) {
+        setChannelSelected(
+          chats.find((chat) => chat.id == channelSelected.id) as ChatModel
+        );
+      }
+    }, 1000);
 
-  //   return () => {
-  //     clearInterval(interval);
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelSelected, chats]);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -70,7 +75,6 @@ export default function Chat() {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
 
@@ -84,7 +88,6 @@ export default function Chat() {
       })
       .then((data) => {
         setChats(data);
-        // setChannelSelected(data[channelSelected?.id ?? 0]);
         setFilteredChats(data);
       })
       .catch((error) => {

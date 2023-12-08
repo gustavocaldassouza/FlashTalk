@@ -8,7 +8,7 @@ interface ChannelBarProps {
 
 export default function ChannelBar({ chat, userId }: ChannelBarProps) {
   return (
-    <AppBar position="relative" color="secondary">
+    <AppBar position="relative" sx={{ backgroundColor: "#f5f5f5" }}>
       <Toolbar
         style={{
           display: "flex",
@@ -35,10 +35,11 @@ export default function ChannelBar({ chat, userId }: ChannelBarProps) {
             primary={chat.participants.find((p) => p.id != userId)?.name}
             primaryTypographyProps={{
               fontSize: "1.2rem",
+              color: "black",
             }}
             secondary={"Developer"}
             secondaryTypographyProps={{
-              color: "#f5f5f5",
+              color: "black",
             }}
           />
           {/* <Typography variant="h6" color="inherit" noWrap>
