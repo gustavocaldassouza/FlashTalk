@@ -39,13 +39,16 @@ export default function ChannelItem({
               primary={chat.participants.find((p) => p.id != userId)?.name}
               secondary={
                 <>
-                  {chat.messages[chat.messages.length - 1]?.sender.id ===
-                  userId ? (
+                  {chat.messages.sort(
+                    (a, b) => parseInt(a.id) - parseInt(b.id)
+                  )[chat.messages.length - 1]?.sender.id === userId ? (
                     <strong>You: </strong>
                   ) : (
                     ""
                   )}
-                  {chat.messages[chat.messages.length - 1]?.text ?? ""}
+                  {chat.messages.sort(
+                    (a, b) => parseInt(a.id) - parseInt(b.id)
+                  )[chat.messages.length - 1]?.text ?? ""}
                 </>
               }
               secondaryTypographyProps={{
