@@ -40,6 +40,7 @@ export default function Chat() {
   const [filteredChats, setFilteredChats] = useState<ChatModel[]>([]);
   const [users, setUsers] = useState<User[]>();
   const [token, setToken] = useState<string>("");
+  const [contactSearch, setContactSearch] = useState<string>("");
   const location = useLocation();
 
   useEffect(() => {
@@ -54,13 +55,18 @@ export default function Chat() {
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetMessages(location.state.token);
-    }, 4000);
+      if (channelSelected) {
+        setChannelSelected(
+          chats.find((chat) => chat.id == channelSelected.id) as ChatModel
+        );
+      }
+    }, 1000);
 
     return () => {
       clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channelSelected, chats]);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -69,7 +75,6 @@ export default function Chat() {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
 
@@ -83,7 +88,6 @@ export default function Chat() {
       })
       .then((data) => {
         setChats(data);
-        setChannelSelected(data[channelSelected?.id ?? 0]);
         setFilteredChats(data);
       })
       .catch((error) => {
@@ -121,7 +125,7 @@ export default function Chat() {
     _user: User
   ): void {
     const newChat: ChatModel = {
-      id: Number.MAX_VALUE.toString(),
+      id: "0",
       name: user!.name,
       createdAt: new Date(),
       owner: user!,
@@ -137,7 +141,11 @@ export default function Chat() {
     setMessage(errorMessage);
   }
 
-  function updateMessages(chatId: string, messages: MessageModel[]) {
+  function updateMessages(
+    chatId: string,
+    messages: MessageModel[],
+    chatUser?: ChatModel
+  ) {
     const updatedChats = chats.map((chat) => {
       if (chat.id === chatId) {
         return { ...chat, messages: messages };
@@ -145,14 +153,29 @@ export default function Chat() {
       return chat;
     });
 
+    if (chatUser && messages.length > 0) {
+      updatedChats.push(chatUser);
+      setUsers(
+        users?.filter(
+          (u) =>
+            u.id !== chatUser.participants.find((p) => p.id != user?.id)?.id
+        )
+      );
+    }
+
     setChats(updatedChats);
-    setFilteredChats(updatedChats);
+
+    const filteredChats = updatedChats.filter((chat) =>
+      chat.participants
+        .find((p) => p.id != user?.id)
+        ?.name?.toLowerCase()
+        .includes(contactSearch.toLowerCase())
+    );
+    setFilteredChats(filteredChats);
   }
 
-  function handleContactSearch(e: React.KeyboardEvent<HTMLDivElement>) {
-    const searchValue = (e.target as HTMLInputElement).value;
-
-    if (searchValue === "") {
+  function handleContactSearch() {
+    if (contactSearch === "") {
       setFilteredChats(chats);
       setUsers(undefined);
       handleGetMessages();
@@ -163,11 +186,11 @@ export default function Chat() {
       chat.participants
         .find((p) => p.id != user?.id)
         ?.name?.toLowerCase()
-        .includes(searchValue.toLowerCase())
+        .includes(contactSearch.toLowerCase())
     );
 
     setFilteredChats(filteredChats);
-    handleGetUsers(searchValue.toLowerCase());
+    handleGetUsers(contactSearch.toLowerCase());
   }
 
   function handleGetUsers(userName: string) {
@@ -236,7 +259,9 @@ export default function Chat() {
                     </>
                   }
                 >
-                  <Avatar>{user?.name[0]}</Avatar>
+                  <Avatar sx={{ backgroundColor: user?.color }}>
+                    {user?.name[0]}
+                  </Avatar>
                 </Tooltip>
               </Toolbar>
             </AppBar>
@@ -255,9 +280,9 @@ export default function Chat() {
               label="Search for contact"
               variant="filled"
               fullWidth
-              onKeyUp={(e) => {
-                handleContactSearch(e);
-              }}
+              value={contactSearch}
+              onChange={(e) => setContactSearch(e.target.value)}
+              onKeyUp={handleContactSearch}
             />
             {filteredChats.length === 0 && !users && (
               <Typography

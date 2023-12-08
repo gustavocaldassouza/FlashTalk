@@ -22,7 +22,9 @@ export default function UserItem({ user, handleUserItemClick }: UserItemProps) {
         <Box key={user.id}>
           <ListItemButton onClick={(event) => handleUserItemClick(event, user)}>
             <ListItemAvatar>
-              <Avatar>{user?.name?.[0]}</Avatar>
+              <Avatar sx={{ backgroundColor: user?.color }}>
+                {user?.name?.[0]}
+              </Avatar>
             </ListItemAvatar>
             <ListItemText
               primary={user?.name}

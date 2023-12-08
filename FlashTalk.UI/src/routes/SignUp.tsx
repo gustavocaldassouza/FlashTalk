@@ -66,6 +66,8 @@ export default function SignUp() {
         data.get("firstName")?.toString() +
         " " +
         data.get("lastName")?.toString(),
+      color:
+        "#" + (((1 << 24) * Math.random()) | 0).toString(16).padStart(6, "0"),
     };
 
     registerUser(user)
