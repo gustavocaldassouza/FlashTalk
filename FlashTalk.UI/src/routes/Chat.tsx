@@ -54,7 +54,7 @@ export default function Chat() {
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetMessages(location.state.token);
-    }, 5000);
+    }, 4000);
 
     return () => {
       clearInterval(interval);
@@ -83,6 +83,7 @@ export default function Chat() {
       })
       .then((data) => {
         setChats(data);
+        setChannelSelected(data[channelSelected?.id ?? 0]);
         setFilteredChats(data);
       })
       .catch((error) => {

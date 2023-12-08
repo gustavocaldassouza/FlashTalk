@@ -33,9 +33,12 @@ export default function Channel({
   }, [chat.id, messages]);
 
   useEffect(() => {
-    setMessage("");
     setMessages(chat.messages);
   }, [chat]);
+
+  useEffect(() => {
+    setMessage("");
+  }, [chat.id]);
 
   function handleSendMessage(
     event: MouseEvent<HTMLButtonElement> | React.KeyboardEvent
@@ -55,7 +58,9 @@ export default function Channel({
         return response.json();
       })
       .then((data) => {
-        const newMessage = data.messages.pop();
+        const newMessage = data.messages.sort(
+          (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
+        )[0];
         setMessages([...messages, newMessage as MessageModel]);
       })
       .catch((error) => {
