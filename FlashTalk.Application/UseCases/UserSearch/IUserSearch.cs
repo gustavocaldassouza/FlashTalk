@@ -2,9 +2,9 @@ using System;
 
 namespace FlashTalk.Application.UseCases.UserSearch
 {
-    public interface IUserSearch
-    {
-        void Execute(string name);
-        void SetOutputPort(IOutputPort outputPort);
-    }
+  public interface IUserSearch
+  {
+    void Execute(string name, int userId);
+    void SetOutputPort(IOutputPort outputPort);
+  }
 }
