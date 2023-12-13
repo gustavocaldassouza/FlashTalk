@@ -90,9 +90,11 @@ export default function Channel({
   }
 
   function appendMockMessage() {
+    const now = new Date();
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
     const mockMessage: MessageModel = {
       id: "0",
-      createdAt: new Date(),
+      createdAt: utc,
       sender: {
         id: userId,
         name: "",
