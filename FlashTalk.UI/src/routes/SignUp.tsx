@@ -14,9 +14,9 @@ import {
   AlertColor,
   AlertTitle,
   AppBar,
-  Button,
   Snackbar,
   Toolbar,
+  CircularProgress,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { registerUser } from "../services/UserService";
@@ -83,19 +83,26 @@ export default function SignUp() {
         setEmailError("");
         setAlertSeverity("success");
         setAlertTitle("Success");
-        setMessage("User successfully created");
+        setMessage("User successfully created.");
         setOpen(true);
+        redirectToLogin();
       })
       .catch((error) => {
         error.text().then((message: string) => {
           setAlertSeverity("error");
           setAlertTitle("Error");
-          setOpen(true);
           setMessage(`${message}`);
           setLoading(false);
+          setOpen(true);
         });
       });
   };
+
+  function redirectToLogin() {
+    setTimeout(() => {
+      navigate("/signin");
+    }, 3000);
+  }
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -119,9 +126,10 @@ export default function SignUp() {
           <AlertTitle>{alertTitle}</AlertTitle>
           <Typography>{message}</Typography>
           {alertSeverity === "success" && (
-            <Button variant="outlined" onClick={() => navigate("/signin")}>
-              Go to Sign In
-            </Button>
+            <Box display={"flex"} flexDirection={"row"}>
+              <Typography>You will be redirected</Typography>
+              <CircularProgress size={15} sx={{ mt: 0.5, ml: 1 }} />
+            </Box>
           )}
         </Alert>
       </Snackbar>
