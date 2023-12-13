@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./index.css";
 import SignIn from "./routes/SignIn";
 import SignUp from "./routes/SignUp";
@@ -16,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route element={<SignUp />} path="/signup/:email" />
         <Route element={<SignUp />} path="/signup" />
         <Route element={<SignIn />} path="/signin" />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
