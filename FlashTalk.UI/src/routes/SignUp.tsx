@@ -14,9 +14,9 @@ import {
   AlertColor,
   AlertTitle,
   AppBar,
-  Button,
   Snackbar,
   Toolbar,
+  CircularProgress,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { registerUser } from "../services/UserService";
@@ -26,13 +26,13 @@ import React from "react";
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const { email } = useParams();
+  // const { email } = useParams();
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [alertTitle, setAlertTitle] = React.useState("");
   const [alertSeverity, setAlertSeverity] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [emailField, setEmailField] = React.useState("");
+  const [emailField, setEmailField] = React.useState(useParams().email || "");
   const [emailError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function SignUp() {
     const data = new FormData(event.currentTarget);
 
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email || emailField)) {
+    if (!emailRegex.test(emailField)) {
       setEmailError("Please enter a valid email address");
       return;
     }
@@ -83,19 +83,26 @@ export default function SignUp() {
         setEmailError("");
         setAlertSeverity("success");
         setAlertTitle("Success");
-        setMessage("User successfully created");
+        setMessage("User successfully created.");
         setOpen(true);
+        redirectToLogin();
       })
       .catch((error) => {
         error.text().then((message: string) => {
           setAlertSeverity("error");
           setAlertTitle("Error");
-          setOpen(true);
           setMessage(`${message}`);
           setLoading(false);
+          setOpen(true);
         });
       });
   };
+
+  function redirectToLogin() {
+    setTimeout(() => {
+      navigate("/signin");
+    }, 3000);
+  }
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -119,9 +126,10 @@ export default function SignUp() {
           <AlertTitle>{alertTitle}</AlertTitle>
           <Typography>{message}</Typography>
           {alertSeverity === "success" && (
-            <Button variant="outlined" onClick={() => navigate("/signin")}>
-              Go to Sign In
-            </Button>
+            <Box display={"flex"} flexDirection={"row"}>
+              <Typography>You will be redirected</Typography>
+              <CircularProgress size={15} sx={{ mt: 0.5, ml: 1 }} />
+            </Box>
           )}
         </Alert>
       </Snackbar>
@@ -184,7 +192,7 @@ export default function SignUp() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    value={email}
+                    value={emailField}
                     onChange={(e) => setEmailField(e.target.value)}
                     error={!!emailError}
                     helperText={emailError}
