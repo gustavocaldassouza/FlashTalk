@@ -37,6 +37,7 @@ const settings = ["Logout"];
 
 export default function Chat() {
   const [user, setUser] = useState<User>();
+  const [newChatId, setNewChatId] = useState<string>("0");
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
@@ -99,6 +100,13 @@ export default function Chat() {
     }
     setOpen(false);
   };
+
+  useEffect(() => {
+    setChannelSelected(
+      chats.find((chat) => chat.id === newChatId) as ChatModel
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newChatId]);
 
   function handleGetMessages(tokenJWT?: string | undefined) {
     getMessages(tokenJWT ?? token)
@@ -166,7 +174,7 @@ export default function Chat() {
   function updateMessages(
     chatId: string,
     messages: MessageModel[],
-    chatUser?: ChatModel
+    newChat?: ChatModel
   ) {
     const updatedChats = chats.map((chat) => {
       if (chat.id === chatId) {
@@ -175,17 +183,19 @@ export default function Chat() {
       return chat;
     });
 
-    if (chatUser && messages.length > 0) {
-      updatedChats.push(chatUser);
+    if (newChat && messages.length > 0) {
+      updatedChats.push(newChat);
       setUsers(
         users?.filter(
-          (u) =>
-            u.id !== chatUser.participants.find((p) => p.id != user?.id)?.id
+          (u) => u.id !== newChat.participants.find((p) => p.id != user?.id)?.id
         )
       );
     }
 
     setChats(updatedChats);
+    if (newChat) {
+      setNewChatId(newChat.id);
+    }
 
     const filteredChats = updatedChats.filter((chat) =>
       chat.participants

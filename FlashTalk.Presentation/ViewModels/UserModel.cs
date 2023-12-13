@@ -8,7 +8,7 @@ namespace FlashTalk.Presentation.ViewModels
   {
     public int Id { get; set; }
     [Required][MinLength(5)][MaxLength(30)] public string? Name { get; set; }
-    [Required][MinLength(20)][MaxLength(60)][EmailAddress] public string? Email { get; set; }
+    [Required][MinLength(10)][MaxLength(60)][EmailAddress] public string? Email { get; set; }
     [Required][MinLength(5)][MaxLength(30)] public string? Password { get; set; }
     [MinLength(7)][MaxLength(7)] public string? Color { get; set; }
     public UserModel()

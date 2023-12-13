@@ -8,7 +8,7 @@ interface ChannelBarProps {
 
 export default function ChannelBar({ chat, userId }: ChannelBarProps) {
   return (
-    <AppBar position="relative" sx={{ backgroundColor: "#f5f5f5" }}>
+    <AppBar position="relative" sx={{ backgroundColor: "white" }} elevation={1}>
       <Toolbar
         style={{
           display: "flex",

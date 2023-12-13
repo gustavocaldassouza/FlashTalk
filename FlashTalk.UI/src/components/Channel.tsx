@@ -28,18 +28,22 @@ export default function Channel({
 }: ChannelProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(chat.messages);
-  const [newChat, setNewChat] = useState();
+  const [newChat, setNewChat] = useState<Chat>();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    if (messages.length > 0) {
+      updateMessages(chat.id, messages);
+    } // Cannot add updateMessages to the dependency array because it will cause an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
-    updateMessages(chat.id, messages, newChat);
-    setNewChat(undefined); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    if (newChat) {
+      updateMessages(newChat?.id, messages, newChat);
+      setNewChat(undefined); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newChat]);
 
