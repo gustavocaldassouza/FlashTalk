@@ -55,9 +55,10 @@ export default function Chat() {
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetMessages(location.state.token);
-      if (channelSelected) {
+
+      if (channelSelected && channelSelected.id !== "0") {
         setChannelSelected(
-          chats.find((chat) => chat.id == channelSelected.id) as ChatModel
+          chats.find((chat) => chat.id === channelSelected.id) as ChatModel
         );
       }
     }, 1000);

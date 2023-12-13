@@ -38,6 +38,7 @@ export default function SignIn() {
     const user: User = {
       id: "0",
       name: "example",
+      color: "#000000",
       email: data.get("email")?.toString() || "",
       password: data.get("password")?.toString() || "",
     };
