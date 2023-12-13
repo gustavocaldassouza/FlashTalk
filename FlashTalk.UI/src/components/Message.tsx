@@ -41,7 +41,13 @@ export default function Message({ message, userId, loading }: MessageProps) {
           {loading ? (
             <CircularProgress sx={{ color: "white", mt: 2.2 }} size={10} />
           ) : (
-            <CheckIcon sx={{ fontSize: 15, mt: 2 }} />
+            <CheckIcon
+              sx={{
+                fontSize: 15,
+                mt: 2,
+                color: message.sender.id == userId ? "white" : "#9e9e9e",
+              }}
+            />
           )}
         </Box>
         <Typography

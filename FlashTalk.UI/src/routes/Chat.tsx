@@ -83,7 +83,7 @@ export default function Chat() {
           chats.find((chat) => chat.id === channelSelected.id) as ChatModel
         );
       }
-    }, 1000);
+    }, 4000);
 
     return () => {
       clearInterval(interval);
