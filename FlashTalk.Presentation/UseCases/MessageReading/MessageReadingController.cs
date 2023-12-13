@@ -29,8 +29,8 @@ namespace FlashTalk.Presentation.UseCases.MessageReading
       _viewModel = Ok(chat);
     }
 
-    [HttpGet("{chatId}")]
-    public IActionResult Get(int chatId)
+    [HttpPut("{chatId}")]
+    public IActionResult Put(int chatId)
     {
       var userId = int.Parse(User.Claims.First().Value);
       _messageReading.Execute(chatId, userId);

@@ -26,3 +26,16 @@ export function sendMessage(
     body,
   });
 }
+
+export function readMessagesByChat(
+  chatId: string,
+  token: string
+): Promise<Response> {
+  const url = `${import.meta.env.VITE_API_URL}/messagereading/${chatId}`;
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

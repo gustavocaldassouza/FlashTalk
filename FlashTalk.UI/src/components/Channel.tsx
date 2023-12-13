@@ -5,7 +5,7 @@ import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Message as MessageModel } from "../models/Message";
-import { sendMessage } from "../services/MessageService";
+import { readMessagesByChat, sendMessage } from "../services/MessageService";
 
 interface ChannelProps {
   chat: Chat;
@@ -30,6 +30,26 @@ export default function Channel({
   const [messages, setMessages] = useState(chat.messages);
   const [newChat, setNewChat] = useState<Chat>();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    readMessagesByChat(chat.id, token)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const messages = data.messages.sort(
+          (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
+        );
+        setMessages(messages);
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat, token]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
