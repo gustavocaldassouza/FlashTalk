@@ -1,14 +1,21 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { Message as MessageModel } from "../models/Message";
 import CheckIcon from "@mui/icons-material/Check";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 interface MessageProps {
   message: MessageModel;
   userId: string;
   loading: boolean;
+  isRead: boolean;
 }
 
-export default function Message({ message, userId, loading }: MessageProps) {
+export default function Message({
+  message,
+  userId,
+  loading,
+  isRead,
+}: MessageProps) {
   return (
     <Box>
       <Box
@@ -38,10 +45,20 @@ export default function Message({ message, userId, loading }: MessageProps) {
           {message.text}
         </Typography>
         <Box width={20}>
-          {loading ? (
+          {loading && (
             <CircularProgress sx={{ color: "white", mt: 2.2 }} size={10} />
-          ) : (
+          )}
+          {!isRead && (
             <CheckIcon
+              sx={{
+                fontSize: 15,
+                mt: 2,
+                color: message.sender.id == userId ? "white" : "#9e9e9e",
+              }}
+            />
+          )}
+          {isRead && message.sender.id === userId && (
+            <VisibilityIcon
               sx={{
                 fontSize: 15,
                 mt: 2,

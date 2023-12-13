@@ -106,6 +106,7 @@ export default function Channel({
         password: "",
         color: "",
       },
+      isRead: false,
       text: message,
       loading: true,
     };
@@ -134,6 +135,7 @@ export default function Channel({
               message={message}
               userId={userId}
               loading={message.loading || false}
+              isRead={message.isRead}
             />
           ))}
         <Box ref={messagesEndRef} />

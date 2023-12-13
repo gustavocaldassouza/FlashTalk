@@ -6,4 +6,5 @@ export interface Message {
   sender: User;
   text: string;
   loading?: boolean;
+  isRead: boolean;
 }

@@ -213,9 +213,6 @@ export default function Chat() {
   }
 
   function filterChatsByContactSearch(updatedChats: ChatModel[]) {
-    console.log(updatedChats);
-    console.log(contactSearch);
-
     const filteredChats = updatedChats.filter((chat) =>
       chat.participants
         .find((p) => p.id != user?.id)
