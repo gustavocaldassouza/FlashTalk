@@ -56,6 +56,9 @@ export default function Channel({
   ) {
     event.preventDefault();
     if (message.trim() === "") return;
+
+    appendMockMessage();
+
     sendMessage(
       message,
       parseInt(userId),
@@ -69,6 +72,7 @@ export default function Channel({
         return response.json();
       })
       .then((data) => {
+        removeMockMessage();
         const newMessage = data.messages.sort(
           (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
         )[0];
@@ -78,10 +82,35 @@ export default function Channel({
         }
       })
       .catch((error) => {
+        removeMockMessage();
         handleErrorAlert(error.message);
       });
 
     setMessage("");
+  }
+
+  function appendMockMessage() {
+    const mockMessage: MessageModel = {
+      id: "0",
+      createdAt: new Date(),
+      sender: {
+        id: userId,
+        name: "",
+        email: "",
+        password: "",
+        color: "",
+      },
+      text: message,
+      loading: true,
+    };
+
+    setMessages([...messages, mockMessage as MessageModel]);
+  }
+
+  function removeMockMessage() {
+    const updatedMessages = [...messages];
+    updatedMessages.pop();
+    setMessages(updatedMessages);
   }
 
   return (
@@ -94,7 +123,12 @@ export default function Channel({
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           )
           .map((message) => (
-            <Message key={message.id} message={message} userId={userId} />
+            <Message
+              key={message.id}
+              message={message}
+              userId={userId}
+              loading={message.loading || false}
+            />
           ))}
         <Box ref={messagesEndRef} />
       </Box>

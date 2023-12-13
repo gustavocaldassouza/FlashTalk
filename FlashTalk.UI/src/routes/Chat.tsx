@@ -306,6 +306,7 @@ export default function Chat() {
               bgcolor: "#f5f5f5",
               height: "calc(100vh - 65px)",
               padding: 0,
+              overflow: "auto",
             }}
           >
             <TextField

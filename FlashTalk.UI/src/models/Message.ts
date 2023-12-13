@@ -5,4 +5,5 @@ export interface Message {
   createdAt: Date;
   sender: User;
   text: string;
+  loading?: boolean;
 }

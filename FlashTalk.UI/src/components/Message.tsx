@@ -1,12 +1,14 @@
-import { Box, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { Message as MessageModel } from "../models/Message";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface MessageProps {
   message: MessageModel;
   userId: string;
+  loading: boolean;
 }
 
-export default function Message({ message, userId }: MessageProps) {
+export default function Message({ message, userId, loading }: MessageProps) {
   return (
     <Box>
       <Box
@@ -16,6 +18,7 @@ export default function Message({ message, userId }: MessageProps) {
         paddingBottom={1}
         margin={1}
         display={"flex"}
+        flexDirection={"row"}
         sx={{
           backgroundColor: message.sender.id == userId ? "#1976D2" : "#f5f5f5",
           color: message.sender.id == userId ? "white" : "black",
@@ -34,9 +37,17 @@ export default function Message({ message, userId }: MessageProps) {
         >
           {message.text}
         </Typography>
+        <Box width={20}>
+          {loading ? (
+            <CircularProgress sx={{ color: "white", mt: 2.2 }} size={10} />
+          ) : (
+            <CheckIcon sx={{ fontSize: 15, mt: 2 }} />
+          )}
+        </Box>
         <Typography
           textAlign={"right"}
           variant="caption"
+          fontSize={".7rem"}
           width={"85px"}
           marginTop={"15px"}
           marginRight={"10px"}
