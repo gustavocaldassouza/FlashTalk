@@ -30,6 +30,7 @@ CREATE TABLE [dbo].message
   sender_id INT NOT NULL,
   text_message VARCHAR(255) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  is_read BIT NOT NULL DEFAULT 0,
   FOREIGN KEY (chat_id) REFERENCES chat(id),
   FOREIGN KEY (sender_id) REFERENCES userd(id)
 );

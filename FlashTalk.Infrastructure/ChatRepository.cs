@@ -195,6 +195,7 @@ namespace FlashTalk.Infrastructure
         string query = @"SELECT MESSAGE.ID MESSAGE_ID
                               , MESSAGE.CREATED_AT MESSAGE_CREATED_AT
                               , MESSAGE.TEXT_MESSAGE MESSAGE_TEXT
+                              , MESSAGE.IS_READ MESSAGE_IS_READ
                               , SENDER.ID SENDER_ID
                               , SENDER.NAME SENDER_NAME
                               , SENDER.EMAIL SENDER_EMAIL
@@ -211,6 +212,7 @@ namespace FlashTalk.Infrastructure
                         Id = row.MESSAGE_ID,
                         CreatedAt = row.MESSAGE_CREATED_AT,
                         Text = row.MESSAGE_TEXT,
+                        IsRead = row.MESSAGE_IS_READ,
                         Sender = new User
                         {
                           Id = row.SENDER_ID,
@@ -248,6 +250,23 @@ namespace FlashTalk.Infrastructure
                       }).ToList();
 
         return participants;
+      }
+    }
+
+    public Chat ReadChat(int chatId, int userId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"UPDATE MESSAGE
+                            SET IS_READ = 1
+                          WHERE CHAT_ID = @ChatId AND SENDER_ID != @UserId";
+        var parameters = new { ChatId = chatId, UserId = userId };
+
+        connection.Execute(query, parameters);
+
+        return GetChatById(chatId);
       }
     }
   }
