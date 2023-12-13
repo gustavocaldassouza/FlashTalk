@@ -1,5 +1,5 @@
-import { useLocation } from "react-router-dom";
-import { MouseEvent, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import React, { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -11,7 +11,10 @@ import {
   Box,
   CssBaseline,
   Grid,
+  IconButton,
   List,
+  Menu,
+  MenuItem,
   Paper,
   TextField,
   ThemeProvider,
@@ -30,6 +33,7 @@ import { getMessages } from "../services/MessageService";
 import UserItem from "../components/UserItem";
 
 const defaultTheme = createTheme();
+const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 export default function Chat() {
   const [user, setUser] = useState<User>();
@@ -42,8 +46,25 @@ export default function Chat() {
   const [token, setToken] = useState<string>("");
   const [contactSearch, setContactSearch] = useState<string>("");
   const location = useLocation();
+  const navigate = useNavigate();
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+
+  function handleOpenUserMenu(event: React.MouseEvent<HTMLElement>) {
+    setAnchorElUser(event.currentTarget);
+  }
+
+  function handleCloseUserMenu(option: string) {
+    if (option === "Logout") {
+      navigate("/");
+    }
+    setAnchorElUser(null);
+  }
 
   useEffect(() => {
+    if (!location.state) {
+      navigate("/");
+      return;
+    }
     if (location.state.token) {
       setToken(location.state.token);
       handleGetUserInfo(location.state.token);
@@ -244,26 +265,38 @@ export default function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Tooltip
-                  TransitionComponent={Zoom}
-                  title={
-                    <>
-                      <Typography color="inherit">
-                        User Id: {user?.id}
-                      </Typography>
-                      <Typography color="inherit">
-                        Name: {user?.name}
-                      </Typography>
-                      <Typography color="inherit">
-                        Email: {user?.email}
-                      </Typography>
-                    </>
-                  }
-                >
-                  <Avatar sx={{ backgroundColor: user?.color }}>
-                    {user?.name[0]}
-                  </Avatar>
+                <Tooltip TransitionComponent={Zoom} title={"Open Settings"}>
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar sx={{ backgroundColor: user?.color }}>
+                      {user?.name[0]}
+                    </Avatar>
+                  </IconButton>
                 </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem
+                      key={setting}
+                      onClick={() => handleCloseUserMenu(setting)}
+                    >
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
               </Toolbar>
             </AppBar>
           </ThemeProvider>
