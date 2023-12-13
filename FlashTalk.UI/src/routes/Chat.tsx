@@ -33,7 +33,7 @@ import { getMessages } from "../services/MessageService";
 import UserItem from "../components/UserItem";
 
 const defaultTheme = createTheme();
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Logout"];
 
 export default function Chat() {
   const [user, setUser] = useState<User>();
