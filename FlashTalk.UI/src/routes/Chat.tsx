@@ -117,8 +117,8 @@ export default function Chat() {
         return response.json();
       })
       .then((data) => {
+        filterChatsByContactSearch(data);
         setChats(data);
-        setFilteredChats(data);
       })
       .catch((error) => {
         setOpen(true);
@@ -197,13 +197,7 @@ export default function Chat() {
       setNewChatId(newChat.id);
     }
 
-    const filteredChats = updatedChats.filter((chat) =>
-      chat.participants
-        .find((p) => p.id != user?.id)
-        ?.name?.toLowerCase()
-        .includes(contactSearch.toLowerCase())
-    );
-    setFilteredChats(filteredChats);
+    filterChatsByContactSearch(updatedChats);
   }
 
   function handleContactSearch() {
@@ -214,15 +208,21 @@ export default function Chat() {
       return;
     }
 
-    const filteredChats = chats.filter((chat) =>
+    filterChatsByContactSearch(chats);
+    handleGetUsers(contactSearch.toLowerCase());
+  }
+
+  function filterChatsByContactSearch(updatedChats: ChatModel[]) {
+    console.log(updatedChats);
+    console.log(contactSearch);
+
+    const filteredChats = updatedChats.filter((chat) =>
       chat.participants
         .find((p) => p.id != user?.id)
         ?.name?.toLowerCase()
         .includes(contactSearch.toLowerCase())
     );
-
     setFilteredChats(filteredChats);
-    handleGetUsers(contactSearch.toLowerCase());
   }
 
   function handleGetUsers(userName: string) {
