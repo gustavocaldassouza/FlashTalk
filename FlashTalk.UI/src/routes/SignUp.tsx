@@ -26,13 +26,13 @@ import React from "react";
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const { email } = useParams();
+  // const { email } = useParams();
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [alertTitle, setAlertTitle] = React.useState("");
   const [alertSeverity, setAlertSeverity] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [emailField, setEmailField] = React.useState("");
+  const [emailField, setEmailField] = React.useState(useParams().email || "");
   const [emailError, setEmailError] = React.useState("");
   const [passwordError, setPasswordError] = React.useState("");
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function SignUp() {
     const data = new FormData(event.currentTarget);
 
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email || emailField)) {
+    if (!emailRegex.test(emailField)) {
       setEmailError("Please enter a valid email address");
       return;
     }
@@ -184,7 +184,7 @@ export default function SignUp() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    value={email}
+                    value={emailField}
                     onChange={(e) => setEmailField(e.target.value)}
                     error={!!emailError}
                     helperText={emailError}
