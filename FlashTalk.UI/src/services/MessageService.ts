@@ -53,3 +53,13 @@ export function sendFileMessage(file: File, receiverId: string, token: string) {
     body: formData,
   });
 }
+
+// export function getFileMessage(token: string): Promise<Response> {
+//   TODO: BACKEND API
+//   const url = `${import.meta.env.VITE_API_URL}/messagesending/file/`;
+//   return fetch(url, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+// }

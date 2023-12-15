@@ -9,6 +9,7 @@ interface MessageProps {
   userId: string;
   loading: boolean;
   isRead: boolean;
+  handleFileClick: (message: MessageModel) => void;
 }
 
 export default function Message({
@@ -16,6 +17,7 @@ export default function Message({
   userId,
   loading,
   isRead,
+  handleFileClick,
 }: MessageProps) {
   return (
     <Box
@@ -37,6 +39,7 @@ export default function Message({
       <Box display={"flex"} flexDirection={"column"} width={"100%"}>
         {message.filePath && (
           <Button
+            onClick={() => handleFileClick(message)}
             startIcon={<InsertDriveFileOutlinedIcon />}
             variant="contained"
             sx={{

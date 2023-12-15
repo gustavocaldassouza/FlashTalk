@@ -151,7 +151,6 @@ export default function Channel({
   function handleFileInput(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files![0];
     if (!file) return;
-    console.log(file);
     sendFileMessage(
       file,
       chat.participants.find((p) => p.id !== userId)!.id,
@@ -171,6 +170,18 @@ export default function Channel({
       });
   }
 
+  function handleFileClick(message: MessageModel) {
+    console.log(message);
+    //TODO: Get file from server and open into another page
+    // window.open(messsage.filePath);
+    // event.preventDefault();
+    // const message = messages.find((m) => m.id === event.currentTarget.id);
+    // if (!message) return;
+    // const file = new File([message.filePath], message.filePath);
+    // const url = URL.createObjectURL(file);
+    // window.open(url);
+  }
+
   return (
     <Stack spacing={1}>
       <ChannelBar chat={chat} userId={userId}></ChannelBar>
@@ -187,6 +198,7 @@ export default function Channel({
               userId={userId}
               loading={message.loading || false}
               isRead={message.isRead}
+              handleFileClick={handleFileClick}
             />
           ))}
         <Box ref={messagesEndRef} />
