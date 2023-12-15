@@ -1,11 +1,16 @@
-import { Box, IconButton, InputBase, Stack } from "@mui/material";
+import { Box, IconButton, InputBase, Stack, styled } from "@mui/material";
 import ChannelBar from "./ChannelBar";
 import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Message as MessageModel } from "../models/Message";
-import { readMessagesByChat, sendMessage } from "../services/MessageService";
+import {
+  readMessagesByChat,
+  sendFileMessage,
+  sendMessage,
+} from "../services/MessageService";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 interface ChannelProps {
   chat: Chat;
@@ -85,8 +90,7 @@ export default function Channel({
 
     sendMessage(
       message,
-      parseInt(userId),
-      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? ""),
+      chat.participants.find((p) => p.id != userId)?.id ?? "",
       token
     )
       .then((response) => {
@@ -95,15 +99,9 @@ export default function Channel({
         }
         return response.json();
       })
-      .then((data) => {
+      .then((data: Chat) => {
         removeMockMessage();
-        const newMessage = data.messages.sort(
-          (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
-        )[0];
-        setMessages([...messages, newMessage as MessageModel]);
-        if (chat.id === "0") {
-          setNewChat(data);
-        }
+        setNewMessages(data);
       })
       .catch((error) => {
         removeMockMessage();
@@ -111,6 +109,16 @@ export default function Channel({
       });
 
     setMessage("");
+  }
+
+  function setNewMessages(data?: Chat) {
+    const newMessage = data!.messages.sort(
+      (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
+    )[0];
+    setMessages([...messages, newMessage as MessageModel]);
+    if (chat.id === "0") {
+      setNewChat(data);
+    }
   }
 
   function appendMockMessage() {
@@ -140,6 +148,29 @@ export default function Channel({
     setMessages(updatedMessages);
   }
 
+  function handleFileInput(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files![0];
+    if (!file) return;
+    console.log(file);
+    sendFileMessage(
+      file,
+      chat.participants.find((p) => p.id !== userId)!.id,
+      token
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: Chat) => {
+        setNewMessages(data);
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
+  }
+
   return (
     <Stack spacing={1}>
       <ChannelBar chat={chat} userId={userId}></ChannelBar>
@@ -160,7 +191,11 @@ export default function Channel({
           ))}
         <Box ref={messagesEndRef} />
       </Box>
-      <Box sx={{ backgroundColor: "#f5f5f5" }}>
+      <Box
+        sx={{ backgroundColor: "#f5f5f5" }}
+        display={"flex"}
+        flexDirection={"row"}
+      >
         <InputBase
           sx={{ ml: 1, flex: 1, width: "calc(100% - 60px)" }}
           placeholder="Type your message"
@@ -173,6 +208,15 @@ export default function Channel({
             }
           }}
         />
+        <IconButton component="label">
+          <AttachFileIcon sx={{ fontSize: 20 }} />
+          <VisuallyHiddenInput
+            type="file"
+            onChange={(event) => {
+              handleFileInput(event);
+            }}
+          />
+        </IconButton>
         <IconButton
           type="button"
           sx={{ p: "10px" }}
@@ -185,3 +229,15 @@ export default function Channel({
     </Stack>
   );
 }
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});

@@ -89,6 +89,20 @@ namespace FlashTalk.Infrastructure
       }
     }
 
+    public void InsertNewMessageWithFile(int channelId, string message, int senderId, string filePath)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"INSERT INTO Message (chat_id, sender_id, text_message, file_path) OUTPUT INSERTED.id
+                                      VALUES (@ChatId, @SenderId, @Message, @FilePath);";
+        var parameters = new { ChatId = channelId, SenderId = senderId, Message = message, FilePath = filePath };
+
+        connection.Execute(query, parameters);
+      }
+    }
+
     public IEnumerable<Chat> GetChatByUserId(int userId)
     {
       IEnumerable<Chat> chat = RetrieveChatByUserId(userId);
@@ -196,6 +210,7 @@ namespace FlashTalk.Infrastructure
                               , MESSAGE.CREATED_AT MESSAGE_CREATED_AT
                               , MESSAGE.TEXT_MESSAGE MESSAGE_TEXT
                               , MESSAGE.IS_READ MESSAGE_IS_READ
+                              , MESSAGE.FILE_PATH MESSAGE_FILE_PATH
                               , SENDER.ID SENDER_ID
                               , SENDER.NAME SENDER_NAME
                               , SENDER.EMAIL SENDER_EMAIL
@@ -213,6 +228,7 @@ namespace FlashTalk.Infrastructure
                         CreatedAt = row.MESSAGE_CREATED_AT,
                         Text = row.MESSAGE_TEXT,
                         IsRead = row.MESSAGE_IS_READ,
+                        FilePath = row.MESSAGE_FILE_PATH,
                         Sender = new User
                         {
                           Id = row.SENDER_ID,
@@ -221,7 +237,20 @@ namespace FlashTalk.Infrastructure
                         }
                       }).ToList();
 
+        changeFilePathToFileName(messages);
+
         return messages;
+      }
+    }
+
+    private void changeFilePathToFileName(List<Message> messages)
+    {
+      foreach (var message in messages)
+      {
+        if (message.FilePath != null)
+        {
+          message.FilePath = Path.GetFileName(message.FilePath);
+        }
       }
     }
 

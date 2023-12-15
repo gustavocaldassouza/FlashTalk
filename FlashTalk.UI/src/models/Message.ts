@@ -7,4 +7,5 @@ export interface Message {
   text: string;
   loading?: boolean;
   isRead: boolean;
+  filePath?: string;
 }

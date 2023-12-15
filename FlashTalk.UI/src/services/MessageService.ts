@@ -11,12 +11,11 @@ export function getMessages(token: string): Promise<Response> {
 
 export function sendMessage(
   message: string,
-  senderId: number,
-  receiverId: number,
+  receiverId: string,
   token: string
 ): Promise<Response> {
   const url = `${import.meta.env.VITE_API_URL}/messagesending/`;
-  const body = JSON.stringify({ message, senderId, receiverId });
+  const body = JSON.stringify({ message, receiverId });
   return fetch(url, {
     method: "POST",
     headers: {
@@ -37,5 +36,20 @@ export function readMessagesByChat(
     headers: {
       Authorization: `Bearer ${token}`,
     },
+  });
+}
+
+export function sendFileMessage(file: File, receiverId: string, token: string) {
+  const url = `${import.meta.env.VITE_API_URL}/messagesending/file/`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("receiverId", receiverId.toString());
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
   });
 }

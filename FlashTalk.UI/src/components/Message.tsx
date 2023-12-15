@@ -1,7 +1,8 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { Message as MessageModel } from "../models/Message";
 import CheckIcon from "@mui/icons-material/Check";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 
 interface MessageProps {
   message: MessageModel;
@@ -17,42 +18,66 @@ export default function Message({
   isRead,
 }: MessageProps) {
   return (
-    <Box>
+    <Box
+      maxWidth="50%"
+      width="25%"
+      margin={1}
+      display={"flex"}
+      flexDirection={"column"}
+      sx={{
+        backgroundColor: message.sender.id == userId ? "#1976D2" : "#f5f5f5",
+        color: message.sender.id == userId ? "white" : "black",
+        borderRadius:
+          message.sender.id == userId
+            ? "10px 10px 0px 10px"
+            : "10px 10px 10px 0px",
+        marginLeft: message.sender.id == userId ? "auto" : "none",
+      }}
+    >
+      <Box display={"flex"} flexDirection={"column"} width={"100%"}>
+        {message.filePath && (
+          <Button
+            startIcon={<InsertDriveFileOutlinedIcon />}
+            variant="contained"
+            sx={{
+              backgroundColor: "#f5f5f5",
+              color: "#1976D2",
+              whiteSpace: "nowrap",
+              borderRadius: 2,
+              m: 0.5,
+              ":hover": {
+                backgroundColor: "#f5f5f5",
+                color: "#1976D2",
+              },
+            }}
+          >
+            <Typography
+              variant="caption"
+              overflow={"hidden"}
+              textOverflow={"ellipsis"}
+            >
+              {message.filePath}
+            </Typography>
+          </Button>
+        )}
+        {message.text && (
+          <Typography paddingTop="5px" paddingLeft="10px">
+            {message.text}
+          </Typography>
+        )}
+      </Box>
       <Box
-        maxWidth="50%"
-        width="25%"
-        height={"35px"}
-        paddingBottom={1}
-        margin={1}
         display={"flex"}
         flexDirection={"row"}
-        sx={{
-          backgroundColor: message.sender.id == userId ? "#1976D2" : "#f5f5f5",
-          color: message.sender.id == userId ? "white" : "black",
-          borderRadius:
-            message.sender.id == userId
-              ? "10px 10px 0px 10px"
-              : "10px 10px 10px 0px",
-          marginLeft: message.sender.id == userId ? "auto" : "none",
-        }}
+        textAlign={"right"}
+        justifyContent={"right"}
       >
-        <Typography
-          paddingTop="5px"
-          paddingLeft="10px"
-          display={"block"}
-          width={"100%"}
-        >
-          {message.text}
-        </Typography>
-        <Box width={20}>
-          {loading && (
-            <CircularProgress sx={{ color: "white", mt: 2.2 }} size={10} />
-          )}
+        <Box mr={1}>
+          {loading && <CircularProgress sx={{ color: "white" }} size={10} />}
           {!isRead && (
             <CheckIcon
               sx={{
                 fontSize: 15,
-                mt: 2,
                 color: message.sender.id == userId ? "white" : "#9e9e9e",
               }}
             />
@@ -61,7 +86,6 @@ export default function Message({
             <VisibilityIcon
               sx={{
                 fontSize: 15,
-                mt: 2,
                 color: message.sender.id == userId ? "white" : "#9e9e9e",
               }}
             />
@@ -71,8 +95,6 @@ export default function Message({
           textAlign={"right"}
           variant="caption"
           fontSize={".7rem"}
-          width={"85px"}
-          marginTop={"15px"}
           marginRight={"10px"}
           color={message.sender.id == userId ? "white" : "#9e9e9e"}
         >

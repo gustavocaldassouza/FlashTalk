@@ -13,7 +13,7 @@ namespace FlashTalk.Application.UseCases.MessageSending
       _chatRepository = chatRepository;
     }
 
-    public void Execute(int senderId, int receiverId, string message)
+    public void Execute(int senderId, int receiverId, string message, string filePath)
     {
       try
       {
@@ -22,7 +22,14 @@ namespace FlashTalk.Application.UseCases.MessageSending
         {
           chatId = _chatRepository.InsertNewChat(senderId, receiverId);
         }
-        _chatRepository.InsertNewMessage(chatId, message, senderId);
+        if (filePath == string.Empty)
+        {
+          _chatRepository.InsertNewMessage(chatId, message, senderId);
+        }
+        else
+        {
+          _chatRepository.InsertNewMessageWithFile(chatId, message, senderId, filePath);
+        }
         var chat = _chatRepository.GetChatById(chatId);
         _outputPort.Ok(chat);
       }
