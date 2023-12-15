@@ -9,5 +9,6 @@ namespace FlashTalk.Domain
     int GetChannelId(int senderId, int receiverId);
     Chat GetChatById(int chatId);
     IEnumerable<Chat> GetChatByUserId(int userId);
+    Chat ReadChat(int chatId, int userId);
   }
 }
