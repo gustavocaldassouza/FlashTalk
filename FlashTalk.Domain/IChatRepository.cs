@@ -11,5 +11,6 @@ namespace FlashTalk.Domain
     Chat GetChatById(int chatId);
     IEnumerable<Chat> GetChatByUserId(int userId);
     Chat ReadChat(int chatId, int userId);
+    FileStream? GetFileFromChat(int chatId, string fileName);
   }
 }

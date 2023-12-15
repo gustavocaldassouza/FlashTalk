@@ -228,7 +228,7 @@ namespace FlashTalk.Infrastructure
                         CreatedAt = row.MESSAGE_CREATED_AT,
                         Text = row.MESSAGE_TEXT,
                         IsRead = row.MESSAGE_IS_READ,
-                        FilePath = row.MESSAGE_FILE_PATH,
+                        FileName = row.MESSAGE_FILE_PATH,
                         Sender = new User
                         {
                           Id = row.SENDER_ID,
@@ -247,9 +247,9 @@ namespace FlashTalk.Infrastructure
     {
       foreach (var message in messages)
       {
-        if (message.FilePath != null)
+        if (message.FileName != null)
         {
-          message.FilePath = Path.GetFileName(message.FilePath);
+          message.FileName = Path.GetFileName(message.FileName);
         }
       }
     }
@@ -296,6 +296,28 @@ namespace FlashTalk.Infrastructure
         connection.Execute(query, parameters);
 
         return GetChatById(chatId);
+      }
+    }
+
+    public FileStream? GetFileFromChat(int chatId, string fileName)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"SELECT MESSAGE.FILE_PATH
+                           FROM MESSAGE
+                          WHERE MESSAGE.CHAT_ID = @ChatId AND MESSAGE.FILE_PATH LIKE @FileName;";
+        var parameters = new { ChatId = chatId, FileName = $"%{fileName}" };
+
+        string? filePath = connection.QueryFirstOrDefault<string>(query, parameters);
+
+        if (filePath != null)
+        {
+          return new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        }
+
+        return null;
       }
     }
   }

@@ -55,7 +55,11 @@ export default function ChannelItem({
                   )}
                   {chat.messages.sort(
                     (a, b) => parseInt(a.id) - parseInt(b.id)
-                  )[chat.messages.length - 1]?.text ?? ""}
+                  )[chat.messages.length - 1]?.text ??
+                    chat.messages.sort(
+                      (a, b) => parseInt(a.id) - parseInt(b.id)
+                    )[chat.messages.length - 1]?.fileName ??
+                    ""}
                 </>
               }
               secondaryTypographyProps={{

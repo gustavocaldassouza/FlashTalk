@@ -54,12 +54,17 @@ export function sendFileMessage(file: File, receiverId: string, token: string) {
   });
 }
 
-// export function getFileMessage(token: string): Promise<Response> {
-//   TODO: BACKEND API
-//   const url = `${import.meta.env.VITE_API_URL}/messagesending/file/`;
-//   return fetch(url, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
-// }
+export function getFileMessage(
+  token: string,
+  chatId: string,
+  fileName: string
+): Promise<Response> {
+  const url = `${
+    import.meta.env.VITE_API_URL
+  }/filedownloading/${chatId}/files/${fileName}`;
+  return fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

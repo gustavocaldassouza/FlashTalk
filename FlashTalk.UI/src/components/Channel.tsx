@@ -6,6 +6,7 @@ import Message from "./Message";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Message as MessageModel } from "../models/Message";
 import {
+  getFileMessage,
   readMessagesByChat,
   sendFileMessage,
   sendMessage,
@@ -151,6 +152,7 @@ export default function Channel({
   function handleFileInput(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files![0];
     if (!file) return;
+    appendMockMessage();
     sendFileMessage(
       file,
       chat.participants.find((p) => p.id !== userId)!.id,
@@ -163,23 +165,40 @@ export default function Channel({
         return response.json();
       })
       .then((data: Chat) => {
+        removeMockMessage();
         setNewMessages(data);
       })
       .catch((error) => {
+        removeMockMessage();
         handleErrorAlert(error.message);
       });
   }
 
   function handleFileClick(message: MessageModel) {
-    console.log(message);
-    //TODO: Get file from server and open into another page
-    // window.open(messsage.filePath);
-    // event.preventDefault();
-    // const message = messages.find((m) => m.id === event.currentTarget.id);
-    // if (!message) return;
-    // const file = new File([message.filePath], message.filePath);
-    // const url = URL.createObjectURL(file);
-    // window.open(url);
+    getFileMessage(token, chat.id, message.fileName!)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response;
+      })
+      .then((data) => {
+        data.blob().then((blob) => {
+          // Create a download link
+          const downloadLink = document.createElement("a");
+          downloadLink.href = window.URL.createObjectURL(blob);
+          downloadLink.download = message.fileName || ""; // Set the downloaded file name
+
+          // Trigger the download
+          downloadLink.click();
+
+          // Cleanup the object URL
+          window.URL.revokeObjectURL(downloadLink.href);
+        });
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
   }
 
   return (

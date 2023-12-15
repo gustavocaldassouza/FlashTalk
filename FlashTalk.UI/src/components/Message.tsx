@@ -37,7 +37,7 @@ export default function Message({
       }}
     >
       <Box display={"flex"} flexDirection={"column"} width={"100%"}>
-        {message.filePath && (
+        {message.fileName && (
           <Button
             onClick={() => handleFileClick(message)}
             startIcon={<InsertDriveFileOutlinedIcon />}
@@ -59,7 +59,7 @@ export default function Message({
               overflow={"hidden"}
               textOverflow={"ellipsis"}
             >
-              {message.filePath}
+              {message.fileName}
             </Typography>
           </Button>
         )}
@@ -76,8 +76,13 @@ export default function Message({
         justifyContent={"right"}
       >
         <Box mr={1}>
-          {loading && <CircularProgress sx={{ color: "white" }} size={10} />}
-          {!isRead && (
+          {loading && (
+            <CircularProgress
+              sx={{ color: "white", position: "relative", bottom: "2.5px" }}
+              size={10}
+            />
+          )}
+          {!isRead && !loading && (
             <CheckIcon
               sx={{
                 fontSize: 15,
@@ -85,7 +90,7 @@ export default function Message({
               }}
             />
           )}
-          {isRead && message.sender.id === userId && (
+          {isRead && !loading && message.sender.id === userId && (
             <VisibilityIcon
               sx={{
                 fontSize: 15,
