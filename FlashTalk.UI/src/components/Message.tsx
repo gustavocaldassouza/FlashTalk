@@ -3,13 +3,14 @@ import { Message as MessageModel } from "../models/Message";
 import CheckIcon from "@mui/icons-material/Check";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import { FileModel } from "../models/FileModel";
 
 interface MessageProps {
   message: MessageModel;
   userId: string;
   loading: boolean;
   isRead: boolean;
-  handleFileClick: (message: MessageModel) => void;
+  handleFileClick: (file: FileModel) => void;
 }
 
 export default function Message({
@@ -37,7 +38,7 @@ export default function Message({
       }}
     >
       <Box display={"flex"} flexDirection={"column"} width={"100%"}>
-        {message.fileName && (
+        {message.fileName && ( //FIXME: WILL BE REPLACE FOR CODE BELOW
           <Button
             onClick={() => handleFileClick(message)}
             startIcon={<InsertDriveFileOutlinedIcon />}
@@ -63,6 +64,34 @@ export default function Message({
             </Typography>
           </Button>
         )}
+        {/* {message.files &&
+          message.files.map((file, index) => (
+            <Button
+              key={index}
+              onClick={() => handleFileClick(file)}
+              startIcon={<InsertDriveFileOutlinedIcon />}
+              variant="contained"
+              sx={{
+                backgroundColor: "#f5f5f5",
+                color: "#1976D2",
+                whiteSpace: "nowrap",
+                borderRadius: 2,
+                m: 0.5,
+                ":hover": {
+                  backgroundColor: "#f5f5f5",
+                  color: "#1976D2",
+                },
+              }}
+            >
+              <Typography
+                variant="caption"
+                overflow={"hidden"}
+                textOverflow={"ellipsis"}
+              >
+                {file.fileName}
+              </Typography>
+            </Button>
+          ))} */}
         {message.text && (
           <Typography paddingTop="5px" paddingLeft="10px">
             {message.text}

@@ -1,3 +1,4 @@
+import { FileModel } from "./FileModel";
 import { User } from "./User";
 
 export interface Message {
@@ -7,5 +8,6 @@ export interface Message {
   text: string;
   loading?: boolean;
   isRead: boolean;
-  fileName?: string;
+  fileName?: string; //TODO - multiple files (BACK-END) < WILL BE REMOVED
+  files?: FileModel[];
 }

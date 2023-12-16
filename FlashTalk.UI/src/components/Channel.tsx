@@ -12,6 +12,7 @@ import {
   sendMessage,
 } from "../services/MessageService";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { FileModel } from "../models/FileModel";
 
 interface ChannelProps {
   chat: Chat;
@@ -87,7 +88,7 @@ export default function Channel({
     event.preventDefault();
     if (message.trim() === "") return;
 
-    appendMockMessage();
+    appendTextBasedMockMessage();
 
     sendMessage(
       message,
@@ -122,7 +123,7 @@ export default function Channel({
     }
   }
 
-  function appendMockMessage() {
+  function appendTextBasedMockMessage() {
     const now = new Date();
     const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
     const mockMessage: MessageModel = {
@@ -143,6 +144,37 @@ export default function Channel({
     setMessages([...messages, mockMessage as MessageModel]);
   }
 
+  function appendFileBasedMockMessage(files: FileList) {
+    const now = new Date();
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+    const mockMessage: MessageModel = {
+      id: "0",
+      createdAt: utc,
+      sender: {
+        id: userId,
+        name: "",
+        email: "",
+        password: "",
+        color: "",
+      },
+      isRead: false,
+      text: message,
+      loading: true,
+      files: [],
+    };
+
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      if (!file) continue;
+      const fileModel: FileModel = {
+        fileName: file.name,
+      };
+      mockMessage!.files!.push(fileModel);
+    }
+
+    setMessages([...messages, mockMessage as MessageModel]);
+  }
+
   function removeMockMessage() {
     const updatedMessages = [...messages];
     updatedMessages.pop();
@@ -150,11 +182,11 @@ export default function Channel({
   }
 
   function handleFileInput(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files![0];
-    if (!file) return;
-    appendMockMessage();
+    const files = event.target.files;
+    if (!files) return;
+    appendFileBasedMockMessage(files);
     sendFileMessage(
-      file,
+      files,
       chat.participants.find((p) => p.id !== userId)!.id,
       token
     )
@@ -174,8 +206,8 @@ export default function Channel({
       });
   }
 
-  function handleFileClick(message: MessageModel) {
-    getFileMessage(token, chat.id, message.fileName!)
+  function handleFileClick(file: FileModel) {
+    getFileMessage(token, chat.id, file.fileName!)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -187,11 +219,9 @@ export default function Channel({
           // Create a download link
           const downloadLink = document.createElement("a");
           downloadLink.href = window.URL.createObjectURL(blob);
-          downloadLink.download = message.fileName || ""; // Set the downloaded file name
-
+          downloadLink.download = file.fileName || ""; // Set the downloaded file name
           // Trigger the download
           downloadLink.click();
-
           // Cleanup the object URL
           window.URL.revokeObjectURL(downloadLink.href);
         });
@@ -243,6 +273,7 @@ export default function Channel({
           <AttachFileIcon sx={{ fontSize: 20 }} />
           <VisuallyHiddenInput
             type="file"
+            // multiple
             onChange={(event) => {
               handleFileInput(event);
             }}

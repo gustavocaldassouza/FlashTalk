@@ -39,10 +39,18 @@ export function readMessagesByChat(
   });
 }
 
-export function sendFileMessage(file: File, receiverId: string, token: string) {
+export function sendFileMessage(
+  files: FileList,
+  receiverId: string,
+  token: string
+) {
   const url = `${import.meta.env.VITE_API_URL}/messagesending/file/`;
   const formData = new FormData();
-  formData.append("file", file);
+  //TODO - multiple files (BACK-END)
+  // for (let i = 0; i < files.length; i++) {
+  //   formData.append("files", files[i]);
+  // }
+  formData.append("file", files[0]);
   formData.append("receiverId", receiverId.toString());
 
   return fetch(url, {
