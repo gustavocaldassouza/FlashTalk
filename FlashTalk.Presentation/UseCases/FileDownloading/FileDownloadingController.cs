@@ -26,10 +26,10 @@ public class FileDownloadingController : ControllerBase, IOutputPort
     _viewModel = Ok(file);
   }
 
-  [HttpGet("{chatId}/files/{fileName}")]
-  public IActionResult DownloadFile(int chatId, string fileName)
+  [HttpGet("{messageId}/files/{fileName}")]
+  public IActionResult DownloadFile(int messageId, string fileName)
   {
-    _fileDownloading.Execute(chatId, fileName);
+    _fileDownloading.Execute(messageId, fileName);
     return _viewModel!;
   }
 }

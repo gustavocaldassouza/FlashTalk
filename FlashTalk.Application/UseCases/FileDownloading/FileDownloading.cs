@@ -11,11 +11,11 @@ public class FileDownloading : IFileDownloading
     _chatRepository = chatRepository;
     _outputPort = new FileDownloadingPresenter();
   }
-  public void Execute(int chatId, string fileName)
+  public void Execute(int messageId, string fileName)
   {
     try
     {
-      var file = _chatRepository.GetFileFromChat(chatId, fileName);
+      var file = _chatRepository.GetFileFromMessage(messageId, fileName);
       _outputPort.Ok(file!);
     }
     catch (Exception e)

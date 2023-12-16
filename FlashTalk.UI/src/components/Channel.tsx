@@ -12,7 +12,7 @@ import {
   sendMessage,
 } from "../services/MessageService";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { FileModel } from "../models/FileModel";
+import { Document as DocumentModel } from "../models/Document";
 
 interface ChannelProps {
   chat: Chat;
@@ -160,16 +160,16 @@ export default function Channel({
       isRead: false,
       text: message,
       loading: true,
-      files: [],
+      documents: [],
     };
 
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
       if (!file) continue;
-      const fileModel: FileModel = {
+      const fileModel: DocumentModel = {
         fileName: file.name,
       };
-      mockMessage!.files!.push(fileModel);
+      mockMessage!.documents!.push(fileModel);
     }
 
     setMessages([...messages, mockMessage as MessageModel]);
@@ -206,8 +206,8 @@ export default function Channel({
       });
   }
 
-  function handleFileClick(file: FileModel) {
-    getFileMessage(token, chat.id, file.fileName!)
+  function handleFileClick(file: DocumentModel, messageId: string) {
+    getFileMessage(token, messageId, file.fileName!)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -247,7 +247,9 @@ export default function Channel({
               userId={userId}
               loading={message.loading || false}
               isRead={message.isRead}
-              handleFileClick={handleFileClick}
+              handleFileClick={(file: DocumentModel) =>
+                handleFileClick(file, message.id)
+              }
             />
           ))}
         <Box ref={messagesEndRef} />
@@ -273,7 +275,7 @@ export default function Channel({
           <AttachFileIcon sx={{ fontSize: 20 }} />
           <VisuallyHiddenInput
             type="file"
-            // multiple
+            multiple
             onChange={(event) => {
               handleFileInput(event);
             }}

@@ -36,8 +36,7 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
       var senderId = int.Parse(User.Claims.First().Value);
       _messageSending.Execute(senderId!,
                               messageSendingModel.ReceiverId!,
-                              messageSendingModel.Message!,
-                              string.Empty);
+                              messageSendingModel.Message!);
       return _viewModel!;
     }
 
@@ -49,19 +48,25 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
 
       var directoryPath = "./files/";
       Directory.CreateDirectory(directoryPath);
-      var filePath = Path.Combine(directoryPath, fileUpload.File!.FileName);
+      List<string> filePaths = new List<string>();
 
-      using (var stream = new FileStream(filePath, FileMode.Create))
+      foreach (var file in fileUpload.Files!)
       {
-        fileUpload.File.CopyTo(stream);
-      }
+        var filePath = Path.Combine(directoryPath, file.FileName);
 
-      var fullPath = Path.GetFullPath(filePath);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+          file.CopyTo(stream);
+        }
+
+        var fullPath = Path.GetFullPath(filePath);
+        filePaths.Add(fullPath);
+      }
 
       _messageSending.Execute(senderId!,
                               fileUpload.ReceiverId!,
                               fileUpload.Message!,
-                              fullPath);
+                              filePaths);
       return _viewModel!;
     }
   }

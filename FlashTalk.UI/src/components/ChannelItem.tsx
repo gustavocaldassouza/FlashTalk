@@ -58,7 +58,11 @@ export default function ChannelItem({
                   )[chat.messages.length - 1]?.text ??
                     chat.messages.sort(
                       (a, b) => parseInt(a.id) - parseInt(b.id)
-                    )[chat.messages.length - 1]?.fileName ??
+                    )[chat.messages.length - 1]?.documents?.[
+                      (chat.messages.sort(
+                        (a, b) => parseInt(a.id) - parseInt(b.id)
+                      )[chat.messages.length - 1]?.documents?.length ?? 0) - 1
+                    ]?.fileName ??
                     ""}
                 </>
               }

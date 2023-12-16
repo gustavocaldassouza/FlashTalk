@@ -46,11 +46,9 @@ export function sendFileMessage(
 ) {
   const url = `${import.meta.env.VITE_API_URL}/messagesending/file/`;
   const formData = new FormData();
-  //TODO - multiple files (BACK-END)
-  // for (let i = 0; i < files.length; i++) {
-  //   formData.append("files", files[i]);
-  // }
-  formData.append("file", files[0]);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("files", files[i]);
+  }
   formData.append("receiverId", receiverId.toString());
 
   return fetch(url, {
@@ -64,12 +62,12 @@ export function sendFileMessage(
 
 export function getFileMessage(
   token: string,
-  chatId: string,
+  messageId: string,
   fileName: string
 ): Promise<Response> {
   const url = `${
     import.meta.env.VITE_API_URL
-  }/filedownloading/${chatId}/files/${fileName}`;
+  }/filedownloading/${messageId}/files/${fileName}`;
   return fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,

@@ -9,25 +9,25 @@ namespace FlashTalk.Domain
     public string Text { get; set; }
     public User Sender { get; set; }
     public bool IsRead { get; set; }
-    public string FileName { get; set; }
+    public IEnumerable<Document> Documents { get; set; }
 
-    public Message(int id, DateTime createdAt, string text, User sender, bool isRead, string fileName)
+    public Message(int id, DateTime createdAt, string text, User sender, bool isRead, IEnumerable<Document> documents)
     {
       Id = id;
       CreatedAt = createdAt;
       Text = text;
       Sender = sender;
       IsRead = isRead;
-      FileName = fileName;
+      Documents = documents;
     }
 
-    public Message(DateTime createdAt, string text, User sender, bool isRead, string fileName)
+    public Message(DateTime createdAt, string text, User sender, bool isRead, IEnumerable<Document> documents)
     {
       CreatedAt = createdAt;
       Text = text;
       Sender = sender;
       IsRead = isRead;
-      FileName = fileName;
+      Documents = documents;
     }
 
     public Message()
@@ -35,7 +35,7 @@ namespace FlashTalk.Domain
       Text = string.Empty;
       Sender = new User();
       IsRead = false;
-      FileName = string.Empty;
+      Documents = new List<Document>();
     }
   }
 }

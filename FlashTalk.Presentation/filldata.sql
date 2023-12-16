@@ -1,6 +1,7 @@
 USE flashtalk;
 
 DROP TABLE IF EXISTS [dbo].participant;
+DROP TABLE IF EXISTS [dbo].document;
 DROP TABLE IF EXISTS [dbo].message;
 DROP TABLE IF EXISTS [dbo].chat;
 DROP TABLE IF EXISTS [dbo].userd;
@@ -31,9 +32,16 @@ CREATE TABLE [dbo].message
   text_message VARCHAR(255) NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE(),
   is_read BIT NOT NULL DEFAULT 0,
-  file_path VARCHAR(255) NULL,
   FOREIGN KEY (chat_id) REFERENCES chat(id),
   FOREIGN KEY (sender_id) REFERENCES userd(id)
+);
+
+CREATE TABLE [dbo].document (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  message_id INT NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  FOREIGN KEY (message_id) REFERENCES message(id)
 );
 
 CREATE TABLE [dbo].participant

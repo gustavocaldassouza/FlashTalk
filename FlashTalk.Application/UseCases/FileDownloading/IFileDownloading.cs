@@ -2,6 +2,6 @@
 
 public interface IFileDownloading
 {
-  void Execute(int chatId, string fileName);
+  void Execute(int messageId, string fileName);
   void SetOutputPort(IOutputPort outputPort);
 }

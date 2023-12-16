@@ -13,7 +13,7 @@ namespace FlashTalk.Application.UseCases.MessageSending
       _chatRepository = chatRepository;
     }
 
-    public void Execute(int senderId, int receiverId, string message, string filePath)
+    public void Execute(int senderId, int receiverId, string message)
     {
       try
       {
@@ -22,14 +22,35 @@ namespace FlashTalk.Application.UseCases.MessageSending
         {
           chatId = _chatRepository.InsertNewChat(senderId, receiverId);
         }
-        if (filePath == string.Empty)
+        _chatRepository.InsertNewMessage(chatId, message, senderId);
+
+        var chat = _chatRepository.GetChatById(chatId);
+        _outputPort.Ok(chat);
+      }
+      catch (Exception e)
+      {
+        _outputPort.Error(e.Message);
+      }
+    }
+
+    public void Execute(int senderId, int receiverId, string message, IEnumerable<string> filePaths)
+    {
+      try
+      {
+        int chatId = _chatRepository.GetChannelId(senderId, receiverId);
+        if (chatId == 0)
         {
-          _chatRepository.InsertNewMessage(chatId, message, senderId);
+          chatId = _chatRepository.InsertNewChat(senderId, receiverId);
         }
-        else
+        int messageId = _chatRepository.InsertNewMessage(chatId, message, senderId);
+        foreach (var filePath in filePaths)
         {
-          _chatRepository.InsertNewMessageWithFile(chatId, message, senderId, filePath);
+          if (filePath != null)
+          {
+            _chatRepository.InsertNewDocument(messageId, filePath);
+          }
         }
+
         var chat = _chatRepository.GetChatById(chatId);
         _outputPort.Ok(chat);
       }

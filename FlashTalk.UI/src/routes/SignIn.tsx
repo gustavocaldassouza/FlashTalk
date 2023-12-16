@@ -48,7 +48,7 @@ export default function SignIn() {
     authenticateUser(user)
       .then((response) => {
         if (!response.ok) {
-          throw response;
+          throw response.json();
         }
         return response.json();
       })
@@ -57,14 +57,11 @@ export default function SignIn() {
         navigate("/chat/", { state: { token: data.token } });
       })
       .catch((error) => {
+        setAlertSeverity("error");
+        setAlertTitle("Error");
+        setOpen(true);
+        setMessage(`${error.message}`);
         setLoading(false);
-        error.text().then((message: string) => {
-          setAlertSeverity("error");
-          setAlertTitle("Error");
-          setOpen(true);
-          setMessage(`${message}`);
-          setLoading(false);
-        });
       });
   }
 
