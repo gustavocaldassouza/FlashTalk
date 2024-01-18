@@ -9,21 +9,21 @@ using FlashTalk.Infrastructure;
 
 namespace FlashTalk.Presentation
 {
-  public static class DependencyInjection
-  {
-    public static IServiceCollection AddUseCases(this IServiceCollection services)
+    public static class DependencyInjection
     {
-      services.AddScoped<IUserRepository, UserRepository>();
-      services.AddScoped<IChatRepository, ChatRepository>();
+        public static IServiceCollection AddUseCases(this IServiceCollection services)
+        {
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IChatRepository, ChatRepository>();
 
-      services.AddScoped<IUserRegistration, UserRegistration>();
-      services.AddScoped<IUserAuthentication, UserAuthentication>();
-      services.AddScoped<IUserSearch, UserSearch>();
-      services.AddScoped<IUserInfo, UserInfo>();
-      services.AddScoped<IMessageSending, MessageSending>();
-      services.AddScoped<IMessageReceiving, MessageReceiving>();
+            services.AddScoped<IUserRegistration, UserRegistration>();
+            services.AddScoped<IUserAuthentication, UserAuthentication>();
+            services.AddScoped<IUserSearch, UserSearch>();
+            services.AddScoped<IUserInfo, UserInfo>();
+            services.AddScoped<IMessageSending, MessageSending>();
+            services.AddScoped<IMessageReceiving, MessageReceiving>();
 
-      return services;
+            return services;
+        }
     }
-  }
 }
