@@ -53,12 +53,12 @@ CREATE TABLE [dbo].participant
   FOREIGN KEY (user_id) REFERENCES userd(id)
 );
 
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('João', 'joao@email.com', '12345', '#3E4A89');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Maria', 'maria@email.com', '12345', '#6FBC43');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('José', 'jose@email.com', '12345', '#D81159');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Ana', 'ana@email.com', '12345', '#F2C641');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Pedro', 'pedro@email.com', '12345', '#1D8EAB');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Paulo', 'paulo@email.com', '12345', '#9C27B0');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('João', 'joaodasilva@email.com', '12345', '#3E4A89');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Maria', 'mariadasilva@email.com', '12345', '#6FBC43');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('José', 'josedasilva@email.com', '12345', '#D81159');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Ana', 'anadasilva@email.com', '12345', '#F2C641');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Pedro', 'pedrodasilva@email.com', '12345', '#1D8EAB');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Paulo', 'paulodasilva@email.com', '12345', '#9C27B0');
 
 INSERT INTO [dbo].chat (name, owner_id, created_at) VALUES ('Chat 1', 1, GETDATE() - 1);
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 2', 2);
