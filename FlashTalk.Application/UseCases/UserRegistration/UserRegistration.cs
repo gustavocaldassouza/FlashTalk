@@ -17,7 +17,7 @@ namespace FlashTalk.Application.UseCases.UserRegistration
       try
       {
         if (_userRepository.IsEmailTaken(email))
-          throw new Exception("Email is already taken");
+          throw new Exception("Email already in use.");
         var user = _userRepository.Register(name, email, password, color);
         _outputPort.Ok(user);
       }

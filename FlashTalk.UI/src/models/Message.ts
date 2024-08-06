@@ -1,3 +1,4 @@
+import { Document as DocumentModel } from "./Document";
 import { User } from "./User";
 
 export interface Message {
@@ -5,4 +6,7 @@ export interface Message {
   createdAt: Date;
   sender: User;
   text: string;
+  loading?: boolean;
+  isRead: boolean;
+  documents?: DocumentModel[];
 }

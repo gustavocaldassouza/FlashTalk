@@ -1,11 +1,18 @@
-import { Box, IconButton, InputBase, Stack } from "@mui/material";
+import { Box, IconButton, InputBase, Stack, styled } from "@mui/material";
 import ChannelBar from "./ChannelBar";
 import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
 import Message from "./Message";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { Message as MessageModel } from "../models/Message";
-import { sendMessage } from "../services/MessageService";
+import {
+  getFileMessage,
+  readMessagesByChat,
+  sendFileMessage,
+  sendMessage,
+} from "../services/MessageService";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { Document as DocumentModel } from "../models/Document";
 
 interface ChannelProps {
   chat: Chat;
@@ -28,18 +35,42 @@ export default function Channel({
 }: ChannelProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(chat.messages);
-  const [newChat, setNewChat] = useState();
+  const [newChat, setNewChat] = useState<Chat>();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    readMessagesByChat(chat.id, token)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const messages = data.messages.sort(
+          (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
+        );
+        setMessages(messages);
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat, token]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    updateMessages(chat.id, messages); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    if (messages.length > 0) {
+      updateMessages(chat.id, messages);
+    } // Cannot add updateMessages to the dependency array because it will cause an infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   useEffect(() => {
-    updateMessages(chat.id, messages, newChat);
-    setNewChat(undefined); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    if (newChat) {
+      updateMessages(newChat?.id, messages, newChat);
+      setNewChat(undefined); // Cannot add updateMessages to the dependency array because it will cause an infinite loop
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newChat]);
 
@@ -56,10 +87,12 @@ export default function Channel({
   ) {
     event.preventDefault();
     if (message.trim() === "") return;
+
+    appendTextBasedMockMessage();
+
     sendMessage(
       message,
-      parseInt(userId),
-      parseInt(chat.participants.find((p) => p.id != userId)?.id ?? ""),
+      chat.participants.find((p) => p.id != userId)?.id ?? "",
       token
     )
       .then((response) => {
@@ -68,20 +101,134 @@ export default function Channel({
         }
         return response.json();
       })
-      .then((data) => {
-        const newMessage = data.messages.sort(
-          (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
-        )[0];
-        setMessages([...messages, newMessage as MessageModel]);
-        if (chat.id === "0") {
-          setNewChat(data);
-        }
+      .then((data: Chat) => {
+        removeMockMessage();
+        setNewMessages(data);
       })
       .catch((error) => {
+        removeMockMessage();
         handleErrorAlert(error.message);
       });
 
     setMessage("");
+  }
+
+  function setNewMessages(data?: Chat) {
+    const newMessage = data!.messages.sort(
+      (a: MessageModel, b: MessageModel) => parseInt(b.id) - parseInt(a.id)
+    )[0];
+    setMessages([...messages, newMessage as MessageModel]);
+    if (chat.id === "0") {
+      setNewChat(data);
+    }
+  }
+
+  function appendTextBasedMockMessage() {
+    const now = new Date();
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+    const mockMessage: MessageModel = {
+      id: "0",
+      createdAt: utc,
+      sender: {
+        id: userId,
+        name: "",
+        email: "",
+        password: "",
+        color: "",
+      },
+      isRead: false,
+      text: message,
+      loading: true,
+    };
+
+    setMessages([...messages, mockMessage as MessageModel]);
+  }
+
+  function appendFileBasedMockMessage(files: FileList) {
+    const now = new Date();
+    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+    const mockMessage: MessageModel = {
+      id: "0",
+      createdAt: utc,
+      sender: {
+        id: userId,
+        name: "",
+        email: "",
+        password: "",
+        color: "",
+      },
+      isRead: false,
+      text: message,
+      loading: true,
+      documents: [],
+    };
+
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index];
+      if (!file) continue;
+      const fileModel: DocumentModel = {
+        fileName: file.name,
+      };
+      mockMessage!.documents!.push(fileModel);
+    }
+
+    setMessages([...messages, mockMessage as MessageModel]);
+  }
+
+  function removeMockMessage() {
+    const updatedMessages = [...messages];
+    updatedMessages.pop();
+    setMessages(updatedMessages);
+  }
+
+  function handleFileInput(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (!files) return;
+    appendFileBasedMockMessage(files);
+    sendFileMessage(
+      files,
+      chat.participants.find((p) => p.id !== userId)!.id,
+      token
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data: Chat) => {
+        removeMockMessage();
+        setNewMessages(data);
+      })
+      .catch((error) => {
+        removeMockMessage();
+        handleErrorAlert(error.message);
+      });
+  }
+
+  function handleFileClick(file: DocumentModel, messageId: string) {
+    getFileMessage(token, messageId, file.fileName!)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response;
+      })
+      .then((data) => {
+        data.blob().then((blob) => {
+          // Create a download link
+          const downloadLink = document.createElement("a");
+          downloadLink.href = window.URL.createObjectURL(blob);
+          downloadLink.download = file.fileName || ""; // Set the downloaded file name
+          // Trigger the download
+          downloadLink.click();
+          // Cleanup the object URL
+          window.URL.revokeObjectURL(downloadLink.href);
+        });
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
   }
 
   return (
@@ -94,11 +241,24 @@ export default function Channel({
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           )
           .map((message) => (
-            <Message key={message.id} message={message} userId={userId} />
+            <Message
+              key={message.id}
+              message={message}
+              userId={userId}
+              loading={message.loading || false}
+              isRead={message.isRead}
+              handleFileClick={(file: DocumentModel) =>
+                handleFileClick(file, message.id)
+              }
+            />
           ))}
         <Box ref={messagesEndRef} />
       </Box>
-      <Box sx={{ backgroundColor: "#f5f5f5" }}>
+      <Box
+        sx={{ backgroundColor: "#f5f5f5" }}
+        display={"flex"}
+        flexDirection={"row"}
+      >
         <InputBase
           sx={{ ml: 1, flex: 1, width: "calc(100% - 60px)" }}
           placeholder="Type your message"
@@ -111,6 +271,16 @@ export default function Channel({
             }
           }}
         />
+        <IconButton component="label">
+          <AttachFileIcon sx={{ fontSize: 20 }} />
+          <VisuallyHiddenInput
+            type="file"
+            multiple
+            onChange={(event) => {
+              handleFileInput(event);
+            }}
+          />
+        </IconButton>
         <IconButton
           type="button"
           sx={{ p: "10px" }}
@@ -123,3 +293,15 @@ export default function Channel({
     </Stack>
   );
 }
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});

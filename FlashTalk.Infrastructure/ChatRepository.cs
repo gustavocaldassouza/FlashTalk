@@ -75,7 +75,7 @@ namespace FlashTalk.Infrastructure
       }
     }
 
-    public void InsertNewMessage(int channelId, string message, int senderId)
+    public int InsertNewMessage(int channelId, string message, int senderId)
     {
       using (IDbConnection connection = new SqlConnection(_connectionString))
       {
@@ -85,20 +85,38 @@ namespace FlashTalk.Infrastructure
                                       VALUES (@ChatId, @SenderId, @Message);";
         var parameters = new { ChatId = channelId, SenderId = senderId, Message = message };
 
-        connection.Execute(query, parameters);
+        return connection.ExecuteScalar<int>(query, parameters);
+      }
+    }
+
+    public int InsertNewDocument(int messageId, string filePath)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"INSERT INTO DOCUMENT (message_id, file_path) OUTPUT INSERTED.id
+                                       VALUES (@MessageId, @FilePath);";
+        var parameters = new { MessageId = messageId, FilePath = filePath };
+
+        return connection.ExecuteScalar<int>(query, parameters);
       }
     }
 
     public IEnumerable<Chat> GetChatByUserId(int userId)
     {
-      IEnumerable<Chat> chat = RetrieveChatByUserId(userId);
-      foreach (var item in chat)
+      IEnumerable<Chat> chats = RetrieveChatByUserId(userId);
+      foreach (var chat in chats)
       {
-        item.Messages = RetrieveMessages(item.Id);
-        item.Participants = RetrieveParticipants(item.Id);
+        chat.Messages = RetrieveMessages(chat.Id);
+        foreach (var message in chat.Messages)
+        {
+          message.Documents = RetrieveDocuments(message.Id);
+        }
+        chat.Participants = RetrieveParticipants(chat.Id);
       }
 
-      return chat;
+      return chats;
     }
 
     public Chat GetChatById(int chatId)
@@ -109,6 +127,10 @@ namespace FlashTalk.Infrastructure
 
       if (chat != null)
       {
+        foreach (var message in messages)
+        {
+          message.Documents = RetrieveDocuments(message.Id);
+        }
         chat.Messages = messages;
         chat.Participants = participants;
         return chat;
@@ -195,6 +217,7 @@ namespace FlashTalk.Infrastructure
         string query = @"SELECT MESSAGE.ID MESSAGE_ID
                               , MESSAGE.CREATED_AT MESSAGE_CREATED_AT
                               , MESSAGE.TEXT_MESSAGE MESSAGE_TEXT
+                              , MESSAGE.IS_READ MESSAGE_IS_READ
                               , SENDER.ID SENDER_ID
                               , SENDER.NAME SENDER_NAME
                               , SENDER.EMAIL SENDER_EMAIL
@@ -211,6 +234,7 @@ namespace FlashTalk.Infrastructure
                         Id = row.MESSAGE_ID,
                         CreatedAt = row.MESSAGE_CREATED_AT,
                         Text = row.MESSAGE_TEXT,
+                        IsRead = row.MESSAGE_IS_READ,
                         Sender = new User
                         {
                           Id = row.SENDER_ID,
@@ -220,6 +244,40 @@ namespace FlashTalk.Infrastructure
                       }).ToList();
 
         return messages;
+      }
+    }
+
+    private IEnumerable<Document> RetrieveDocuments(int messageId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"SELECT ID, FILE_PATH, CREATED_AT FROM DOCUMENT WHERE MESSAGE_ID = @MessageId;";
+        var parameters = new { MessageId = messageId };
+
+        var documents = connection.Query(query, parameters)
+                      .Select(row => new Document
+                      {
+                        Id = row.ID,
+                        FilePath = row.FILE_PATH,
+                        CreatedAt = row.CREATED_AT
+                      }).ToList();
+
+        SetFileName(documents);
+
+        return documents;
+      }
+    }
+
+    private void SetFileName(IEnumerable<Document> documents)
+    {
+      foreach (var document in documents)
+      {
+        if (document.FilePath != null)
+        {
+          document.FileName = Path.GetFileName(document.FilePath);
+        }
       }
     }
 
@@ -248,6 +306,45 @@ namespace FlashTalk.Infrastructure
                       }).ToList();
 
         return participants;
+      }
+    }
+
+    public Chat ReadChat(int chatId, int userId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"UPDATE MESSAGE
+                            SET IS_READ = 1
+                          WHERE CHAT_ID = @ChatId AND SENDER_ID != @UserId";
+        var parameters = new { ChatId = chatId, UserId = userId };
+
+        connection.Execute(query, parameters);
+
+        return GetChatById(chatId);
+      }
+    }
+
+    public FileStream? GetFileFromMessage(int messageId, string fileName)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"SELECT DOCUMENT.FILE_PATH
+                           FROM DOCUMENT
+                          WHERE DOCUMENT.MESSAGE_ID = @MessageId AND DOCUMENT.FILE_PATH LIKE @FileName;";
+        var parameters = new { MessageId = messageId, FileName = $"%{fileName}" };
+
+        string? filePath = connection.QueryFirstOrDefault<string>(query, parameters);
+
+        if (filePath != null)
+        {
+          return new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        }
+
+        return null;
       }
     }
   }

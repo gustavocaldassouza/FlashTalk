@@ -1,3 +1,5 @@
+using FlashTalk.Application.UseCases.FileDownloading;
+using FlashTalk.Application.UseCases.MessageReading;
 using FlashTalk.Application.UseCases.MessageReceiving;
 using FlashTalk.Application.UseCases.MessageSending;
 using FlashTalk.Application.UseCases.UserAuthentication;
@@ -16,12 +18,14 @@ namespace FlashTalk.Presentation
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
 
-            services.AddScoped<IUserRegistration, UserRegistration>();
-            services.AddScoped<IUserAuthentication, UserAuthentication>();
-            services.AddScoped<IUserSearch, UserSearch>();
-            services.AddScoped<IUserInfo, UserInfo>();
-            services.AddScoped<IMessageSending, MessageSending>();
-            services.AddScoped<IMessageReceiving, MessageReceiving>();
+      services.AddScoped<IUserRegistration, UserRegistration>();
+      services.AddScoped<IUserAuthentication, UserAuthentication>();
+      services.AddScoped<IUserSearch, UserSearch>();
+      services.AddScoped<IUserInfo, UserInfo>();
+      services.AddScoped<IMessageSending, MessageSending>();
+      services.AddScoped<IMessageReceiving, MessageReceiving>();
+      services.AddScoped<IMessageReading, MessageReading>();
+      services.AddScoped<IFileDownloading, FileDownloading>();
 
             return services;
         }

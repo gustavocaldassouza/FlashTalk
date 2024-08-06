@@ -5,6 +5,8 @@ import {
   Avatar,
   ListItemText,
   Divider,
+  Badge,
+  Typography,
 } from "@mui/material";
 import { MouseEvent } from "react";
 import { Chat } from "../models/Chat";
@@ -53,7 +55,15 @@ export default function ChannelItem({
                   )}
                   {chat.messages.sort(
                     (a, b) => parseInt(a.id) - parseInt(b.id)
-                  )[chat.messages.length - 1]?.text ?? ""}
+                  )[chat.messages.length - 1]?.text ??
+                    chat.messages.sort(
+                      (a, b) => parseInt(a.id) - parseInt(b.id)
+                    )[chat.messages.length - 1]?.documents?.[
+                      (chat.messages.sort(
+                        (a, b) => parseInt(a.id) - parseInt(b.id)
+                      )[chat.messages.length - 1]?.documents?.length ?? 0) - 1
+                    ]?.fileName ??
+                    ""}
                 </>
               }
               secondaryTypographyProps={{
@@ -61,16 +71,25 @@ export default function ChannelItem({
                 overflow: "hidden",
               }}
             />
-            <ListItemText
-              secondary={new Date(chat.createdAt).toLocaleString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-              secondaryTypographyProps={{
-                fontSize: "0.8rem",
-                textAlign: "right",
-              }}
-            />
+            <Box mt={-2}>
+              <Typography variant="caption" color={"gray"} textAlign={"right"}>
+                {new Date(chat.createdAt).toLocaleString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Typography>
+              <Badge
+                badgeContent={
+                  chat.messages.find((m) => m.sender.id != userId && !m.isRead)
+                    ? chat.messages.filter(
+                        (m) => m.sender.id != userId && !m.isRead
+                      ).length
+                    : 0
+                }
+                color="primary"
+                sx={{ marginLeft: "auto", display: "block", mt: 1.5, mr: 1 }}
+              />
+            </Box>
           </ListItemButton>
           <Divider variant="inset" component="li" />
         </Box>

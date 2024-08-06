@@ -1,6 +1,7 @@
 USE flashtalk;
 
 DROP TABLE IF EXISTS [dbo].participant;
+DROP TABLE IF EXISTS [dbo].document;
 DROP TABLE IF EXISTS [dbo].message;
 DROP TABLE IF EXISTS [dbo].chat;
 DROP TABLE IF EXISTS [dbo].userd;
@@ -28,10 +29,19 @@ CREATE TABLE [dbo].message
   id INT IDENTITY(1,1) PRIMARY KEY,
   chat_id INT NOT NULL,
   sender_id INT NOT NULL,
-  text_message VARCHAR(255) NOT NULL,
+  text_message VARCHAR(255) NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  is_read BIT NOT NULL DEFAULT 0,
   FOREIGN KEY (chat_id) REFERENCES chat(id),
   FOREIGN KEY (sender_id) REFERENCES userd(id)
+);
+
+CREATE TABLE [dbo].document (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  message_id INT NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  FOREIGN KEY (message_id) REFERENCES message(id)
 );
 
 CREATE TABLE [dbo].participant
@@ -43,12 +53,12 @@ CREATE TABLE [dbo].participant
   FOREIGN KEY (user_id) REFERENCES userd(id)
 );
 
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('João', 'joao@email.com', '123', '#3E4A89');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Maria', 'maria@email.com', '123', '#6FBC43');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('José', 'jose@email.com', '123', '#D81159');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Ana', 'ana@email.com', '123', '#F2C641');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Pedro', 'pedro@email.com', '123', '#1D8EAB');
-INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Paulo', 'paulo@email.com', '123', '#9C27B0');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('João', 'joaodasilva@email.com', '12345', '#3E4A89');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Maria', 'mariadasilva@email.com', '12345', '#6FBC43');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('José', 'josedasilva@email.com', '12345', '#D81159');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Ana', 'anadasilva@email.com', '12345', '#F2C641');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Pedro', 'pedrodasilva@email.com', '12345', '#1D8EAB');
+INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Paulo', 'paulodasilva@email.com', '12345', '#9C27B0');
 
 INSERT INTO [dbo].chat (name, owner_id, created_at) VALUES ('Chat 1', 1, GETDATE() - 1);
 INSERT INTO [dbo].chat (name, owner_id) VALUES ('Chat 2', 2);

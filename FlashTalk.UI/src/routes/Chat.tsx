@@ -1,5 +1,5 @@
-import { useLocation } from "react-router-dom";
-import { MouseEvent, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import React, { MouseEvent, useEffect, useState } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -11,7 +11,10 @@ import {
   Box,
   CssBaseline,
   Grid,
+  IconButton,
   List,
+  Menu,
+  MenuItem,
   Paper,
   TextField,
   ThemeProvider,
@@ -30,9 +33,11 @@ import { getMessages } from "../services/MessageService";
 import UserItem from "../components/UserItem";
 
 const defaultTheme = createTheme();
+const settings = ["Logout"];
 
 export default function Chat() {
   const [user, setUser] = useState<User>();
+  const [newChatId, setNewChatId] = useState<string>("0");
   const [open, setOpen] = useState(false);
   const [channelSelected, setChannelSelected] = useState<ChatModel>();
   const [message, setMessage] = useState("");
@@ -42,8 +47,25 @@ export default function Chat() {
   const [token, setToken] = useState<string>("");
   const [contactSearch, setContactSearch] = useState<string>("");
   const location = useLocation();
+  const navigate = useNavigate();
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+
+  function handleOpenUserMenu(event: React.MouseEvent<HTMLElement>) {
+    setAnchorElUser(event.currentTarget);
+  }
+
+  function handleCloseUserMenu(option: string) {
+    if (option === "Logout") {
+      navigate("/");
+    }
+    setAnchorElUser(null);
+  }
 
   useEffect(() => {
+    if (!location.state) {
+      navigate("/");
+      return;
+    }
     if (location.state.token) {
       setToken(location.state.token);
       handleGetUserInfo(location.state.token);
@@ -55,12 +77,13 @@ export default function Chat() {
   useEffect(() => {
     const interval = setInterval(() => {
       handleGetMessages(location.state.token);
-      if (channelSelected) {
+
+      if (channelSelected && channelSelected.id !== "0") {
         setChannelSelected(
-          chats.find((chat) => chat.id == channelSelected.id) as ChatModel
+          chats.find((chat) => chat.id === channelSelected.id) as ChatModel
         );
       }
-    }, 1000);
+    }, 4000);
 
     return () => {
       clearInterval(interval);
@@ -78,6 +101,13 @@ export default function Chat() {
     setOpen(false);
   };
 
+  useEffect(() => {
+    setChannelSelected(
+      chats.find((chat) => chat.id === newChatId) as ChatModel
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newChatId]);
+
   function handleGetMessages(tokenJWT?: string | undefined) {
     getMessages(tokenJWT ?? token)
       .then((response) => {
@@ -87,8 +117,8 @@ export default function Chat() {
         return response.json();
       })
       .then((data) => {
+        filterChatsByContactSearch(data);
         setChats(data);
-        setFilteredChats(data);
       })
       .catch((error) => {
         setOpen(true);
@@ -144,7 +174,7 @@ export default function Chat() {
   function updateMessages(
     chatId: string,
     messages: MessageModel[],
-    chatUser?: ChatModel
+    newChat?: ChatModel
   ) {
     const updatedChats = chats.map((chat) => {
       if (chat.id === chatId) {
@@ -153,25 +183,21 @@ export default function Chat() {
       return chat;
     });
 
-    if (chatUser && messages.length > 0) {
-      updatedChats.push(chatUser);
+    if (newChat && messages.length > 0) {
+      updatedChats.push(newChat);
       setUsers(
         users?.filter(
-          (u) =>
-            u.id !== chatUser.participants.find((p) => p.id != user?.id)?.id
+          (u) => u.id !== newChat.participants.find((p) => p.id != user?.id)?.id
         )
       );
     }
 
     setChats(updatedChats);
+    if (newChat) {
+      setNewChatId(newChat.id);
+    }
 
-    const filteredChats = updatedChats.filter((chat) =>
-      chat.participants
-        .find((p) => p.id != user?.id)
-        ?.name?.toLowerCase()
-        .includes(contactSearch.toLowerCase())
-    );
-    setFilteredChats(filteredChats);
+    filterChatsByContactSearch(updatedChats);
   }
 
   function handleContactSearch() {
@@ -182,15 +208,18 @@ export default function Chat() {
       return;
     }
 
-    const filteredChats = chats.filter((chat) =>
+    filterChatsByContactSearch(chats);
+    handleGetUsers(contactSearch.toLowerCase());
+  }
+
+  function filterChatsByContactSearch(updatedChats: ChatModel[]) {
+    const filteredChats = updatedChats.filter((chat) =>
       chat.participants
         .find((p) => p.id != user?.id)
         ?.name?.toLowerCase()
         .includes(contactSearch.toLowerCase())
     );
-
     setFilteredChats(filteredChats);
-    handleGetUsers(contactSearch.toLowerCase());
   }
 
   function handleGetUsers(userName: string) {
@@ -243,26 +272,38 @@ export default function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Tooltip
-                  TransitionComponent={Zoom}
-                  title={
-                    <>
-                      <Typography color="inherit">
-                        User Id: {user?.id}
-                      </Typography>
-                      <Typography color="inherit">
-                        Name: {user?.name}
-                      </Typography>
-                      <Typography color="inherit">
-                        Email: {user?.email}
-                      </Typography>
-                    </>
-                  }
-                >
-                  <Avatar sx={{ backgroundColor: user?.color }}>
-                    {user?.name[0]}
-                  </Avatar>
+                <Tooltip TransitionComponent={Zoom} title={"Open Settings"}>
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar sx={{ backgroundColor: user?.color }}>
+                      {user?.name[0]}
+                    </Avatar>
+                  </IconButton>
                 </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem
+                      key={setting}
+                      onClick={() => handleCloseUserMenu(setting)}
+                    >
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
               </Toolbar>
             </AppBar>
           </ThemeProvider>
@@ -272,6 +313,7 @@ export default function Chat() {
               bgcolor: "#f5f5f5",
               height: "calc(100vh - 65px)",
               padding: 0,
+              overflow: "auto",
             }}
           >
             <TextField

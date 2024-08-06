@@ -39,6 +39,36 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
                               messageSendingModel.Message!);
       return _viewModel!;
     }
+
+    [HttpPost]
+    [Route("file")]
+    public IActionResult Post([FromForm] FileUpload fileUpload)
+    {
+      var senderId = int.Parse(User.Claims.First().Value);
+
+      var directoryPath = "./files/";
+      Directory.CreateDirectory(directoryPath);
+      List<string> filePaths = new List<string>();
+
+      foreach (var file in fileUpload.Files!)
+      {
+        var filePath = Path.Combine(directoryPath, file.FileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+          file.CopyTo(stream);
+        }
+
+        var fullPath = Path.GetFullPath(filePath);
+        filePaths.Add(fullPath);
+      }
+
+      _messageSending.Execute(senderId!,
+                              fileUpload.ReceiverId!,
+                              fileUpload.Message!,
+                              filePaths);
+      return _viewModel!;
+    }
   }
 
 }
