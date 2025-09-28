@@ -8,6 +8,7 @@ using FlashTalk.Application.UseCases.UserRegistration;
 using FlashTalk.Application.UseCases.UserSearch;
 using FlashTalk.Domain;
 using FlashTalk.Infrastructure;
+using FlashTalk.Presentation.Services;
 
 namespace FlashTalk.Presentation
 {
@@ -26,6 +27,10 @@ namespace FlashTalk.Presentation
       services.AddScoped<IMessageReceiving, MessageReceiving>();
       services.AddScoped<IMessageReading, MessageReading>();
       services.AddScoped<IFileDownloading, FileDownloading>();
+
+      // SignalR services
+      services.AddSingleton<IPresenceService, PresenceService>();
+      services.AddHostedService<TypingCleanupService>();
 
             return services;
         }
