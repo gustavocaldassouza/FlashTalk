@@ -1,0 +1,71 @@
+# Docker Compose file for CI/CD testing
+# This can be used to test the full application stack locally before deployment
+
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: flashtalk-sqlserver-ci
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=FlashTalk123!
+      - MSSQL_PID=Express
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P FlashTalk123! -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  flashtalk-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flashtalk-api-ci
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__FlashTalkDb=Server=sqlserver,1433;Database=FlashTalkDb;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
+      - Jwt__Key=your-super-secret-jwt-key-that-should-be-at-least-32-characters-long
+      - Jwt__Issuer=FlashTalk
+    ports:
+      - "5000:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  flashtalk-ui:
+    build:
+      context: ./FlashTalk.UI
+      dockerfile: Dockerfile
+    container_name: flashtalk-ui-ci
+    ports:
+      - "3000:80"
+    depends_on:
+      - flashtalk-api
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  default:
+    name: flashtalk-ci-network
