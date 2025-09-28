@@ -1,8 +1,6 @@
 # Docker Compose file for CI/CD testing
 # This can be used to test the full application stack locally before deployment
 
-version: '3.8'
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest

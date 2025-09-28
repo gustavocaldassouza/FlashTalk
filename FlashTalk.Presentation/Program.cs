@@ -71,7 +71,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    DataInjection.FillDatabase(app.Configuration);
+    DataInjection.HandleDatabase(app.Configuration);
 }
 
 if (app.Environment.IsProduction())
