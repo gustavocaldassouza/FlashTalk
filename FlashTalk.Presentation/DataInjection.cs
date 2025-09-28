@@ -20,13 +20,13 @@ namespace FlashTalk.Presentation
             var script = File.ReadAllText(scriptPath);
             connection.Execute(script);
           }
-          FillDatabase(configuration);
+          Console.WriteLine("Database created and populated successfully!");
           break;
         }
         catch (Exception ex)
         {
           i++;
-          Console.WriteLine(ex.Message);
+          Console.WriteLine($"Database creation attempt {i} failed: {ex.Message}");
           Thread.Sleep(10000);
         }
       }
