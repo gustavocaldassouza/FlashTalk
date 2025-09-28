@@ -62,7 +62,7 @@ services:
     depends_on:
       - flashtalk-api
     environment:
-      - VITE_API_URL=http://localhost:5000
+      - VITE_API_URL=/api
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
