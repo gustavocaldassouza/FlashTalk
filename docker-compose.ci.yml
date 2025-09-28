@@ -39,6 +39,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__FlashTalkDb=Server=sqlserver,1433;Database=FlashTalkDb;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
+      - ConnectionStrings__FlashTalkDbCreate=Server=sqlserver,1433;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
       - Jwt__Key=your-super-secret-jwt-key-that-should-be-at-least-32-characters-long
       - Jwt__Issuer=FlashTalk
     ports:
