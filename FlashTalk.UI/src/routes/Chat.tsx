@@ -76,7 +76,7 @@ export default function Chat() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      handleGetMessages(location.state.token);
+      handleGetMessages(token);
 
       if (channelSelected && channelSelected.id !== "0") {
         setChannelSelected(
@@ -89,7 +89,7 @@ export default function Chat() {
       clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelSelected, chats]);
+  }, [channelSelected, chats, token]);
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
