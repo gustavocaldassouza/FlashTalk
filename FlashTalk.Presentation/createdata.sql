@@ -1,5 +1,4 @@
 CREATE DATABASE flashtalk;
-USE flashtalk;
 
 DROP TABLE IF EXISTS [dbo].participant;
 DROP TABLE IF EXISTS [dbo].document;

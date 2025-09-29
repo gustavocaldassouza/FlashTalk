@@ -36,12 +36,12 @@ services:
     container_name: flashtalk-api-ci
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__FlashTalkDb=Server=sqlserver,1433;Database=FlashTalkDb;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
+      - ConnectionStrings__FlashTalkDb=Server=sqlserver,1433;Database=flashtalk;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
       - ConnectionStrings__FlashTalkDbCreate=Server=sqlserver,1433;User Id=sa;Password=FlashTalk123!;TrustServerCertificate=true;
       - Jwt__Key=your-super-secret-jwt-key-that-should-be-at-least-32-characters-long
       - Jwt__Issuer=FlashTalk
     ports:
-      - "5000:80"
+      - "5001:80"
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -56,13 +56,13 @@ services:
     build:
       context: ./FlashTalk.UI
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
     container_name: flashtalk-ui-ci
     ports:
       - "3000:80"
     depends_on:
       - flashtalk-api
-    environment:
-      - VITE_API_URL=/api
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
