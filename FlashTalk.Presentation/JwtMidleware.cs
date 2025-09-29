@@ -18,7 +18,16 @@ namespace FlashTalk.Presentation
             if (userId != null)
             {
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userRepository.GetUserInfo(userId.Value);
+                var user = userRepository.GetUserInfo(userId.Value);
+                context.Items["User"] = user;
+                
+                // Set up the user principal for authorization
+                var claims = new[]
+                {
+                    new System.Security.Claims.Claim("id", userId.Value.ToString())
+                };
+                var identity = new System.Security.Claims.ClaimsIdentity(claims, "jwt");
+                context.User = new System.Security.Claims.ClaimsPrincipal(identity);
             }
 
             await _next(context);
