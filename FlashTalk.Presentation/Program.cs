@@ -1,5 +1,7 @@
 using System.Text;
 using FlashTalk.Presentation;
+using FlashTalk.Presentation.Hubs;
+using FlashTalk.Presentation.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -37,6 +39,8 @@ builder.Services.AddSwaggerGen(opt =>
 });
 builder.Services.AddUseCases();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<SignalRJwtService>();
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,15 +56,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Issuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+        
+        // Configure JWT for SignalR
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+                {
+                    context.Token = accessToken;
+                }
+                
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAllOrigins",
             builder =>
             {
-                builder.AllowAnyOrigin()
+                builder.WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:4173")
                        .AllowAnyMethod()
-                       .AllowAnyHeader();
+                       .AllowAnyHeader()
+                       .AllowCredentials();
             });
     });
 
@@ -81,11 +103,11 @@ if (app.Environment.IsProduction())
 
 app.UseCors("AllowAllOrigins");
 app.UseMiddleware<JwtMiddleware>();
-app.UseRouting();
-app.MapControllers();
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
+app.UseRouting();
 app.UseAuthorization();
+app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
+app.UseHttpsRedirection();
 
 app.Run();
