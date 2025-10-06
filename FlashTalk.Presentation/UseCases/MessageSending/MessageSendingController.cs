@@ -1,9 +1,12 @@
 using System;
+using System.Security.Claims;
 using FlashTalk.Application.UseCases.MessageSending;
 using FlashTalk.Domain;
+using FlashTalk.Presentation.Hubs;
 using FlashTalk.Presentation.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FlashTalk.Presentation.UseCases.MessageSending
 {
@@ -13,10 +16,12 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
   public class MessageSendingController : ControllerBase, IOutputPort
   {
     private readonly IMessageSending _messageSending;
+    private readonly IHubContext<ChatHub> _hubContext;
     private IActionResult? _viewModel;
-    public MessageSendingController(IMessageSending messageSending)
+    public MessageSendingController(IMessageSending messageSending, IHubContext<ChatHub> hubContext)
     {
       _messageSending = messageSending;
+      _hubContext = hubContext;
       _messageSending.SetOutputPort(this);
     }
 
@@ -31,20 +36,38 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] MessageSendingModel messageSendingModel)
+    public async Task<IActionResult> Post([FromBody] MessageSendingModel messageSendingModel)
     {
-      var senderId = int.Parse(User.Claims.First().Value);
+      var senderId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+      var senderName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown User";
+      
       _messageSending.Execute(senderId!,
                               messageSendingModel.ReceiverId!,
                               messageSendingModel.Message!);
+      
+      if (_viewModel is OkObjectResult okResult && okResult.Value is Chat chat)
+      {
+        // Broadcast the message to all participants in the chat via SignalR
+        var messageData = new
+        {
+          chatId = chat.Id,
+          message = messageSendingModel.Message,
+          senderId = senderId,
+          senderName = senderName,
+          timestamp = DateTime.UtcNow
+        };
+        await _hubContext.Clients.Group($"Chat_{chat.Id}").SendAsync("ReceiveMessage", messageData);
+      }
+      
       return _viewModel!;
     }
 
     [HttpPost]
     [Route("file")]
-    public IActionResult Post([FromForm] FileUpload fileUpload)
+    public async Task<IActionResult> Post([FromForm] FileUpload fileUpload)
     {
-      var senderId = int.Parse(User.Claims.First().Value);
+      var senderId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+      var senderName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown User";
 
       var directoryPath = "./files/";
       Directory.CreateDirectory(directoryPath);
@@ -67,6 +90,24 @@ namespace FlashTalk.Presentation.UseCases.MessageSending
                               fileUpload.ReceiverId!,
                               fileUpload.Message!,
                               filePaths);
+      
+      if (_viewModel is OkObjectResult okResult && okResult.Value is Chat chat)
+      {
+        // Broadcast the message with files to all participants in the chat via SignalR
+        var fileCount = fileUpload.Files != null ? fileUpload.Files.Count() : 0;
+        var messageData = new
+        {
+          chatId = chat.Id,
+          message = fileUpload.Message,
+          senderId = senderId,
+          senderName = senderName,
+          timestamp = DateTime.UtcNow,
+          hasFiles = true,
+          fileCount = fileCount
+        };
+        await _hubContext.Clients.Group($"Chat_{chat.Id}").SendAsync("ReceiveMessage", messageData);
+      }
+      
       return _viewModel!;
     }
   }
