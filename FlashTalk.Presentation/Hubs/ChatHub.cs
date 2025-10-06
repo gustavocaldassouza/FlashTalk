@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using FlashTalk.Domain;
 
 namespace FlashTalk.Presentation.Hubs
 {
@@ -8,6 +9,12 @@ namespace FlashTalk.Presentation.Hubs
     {
         private static readonly ConcurrentDictionary<string, UserConnection> _connections = new();
         private static readonly ConcurrentDictionary<int, HashSet<string>> _chatGroups = new();
+        private readonly IChatRepository _chatRepository;
+
+        public ChatHub(IChatRepository chatRepository)
+        {
+            _chatRepository = chatRepository;
+        }
 
         public class UserConnection
         {
@@ -99,15 +106,27 @@ namespace FlashTalk.Presentation.Hubs
 
         public async Task SendMessage(int chatId, string message, int senderId, string senderName)
         {
-            var groupName = $"Chat_{chatId}";
-            await Clients.Group(groupName).SendAsync("ReceiveMessage", new
+            try
             {
-                chatId,
-                message,
-                senderId,
-                senderName,
-                timestamp = DateTime.UtcNow
-            });
+                // Save the message to the database
+                _chatRepository.InsertNewMessage(chatId, message, senderId);
+
+                // Broadcast the message to all participants in the chat
+                var groupName = $"Chat_{chatId}";
+                await Clients.Group(groupName).SendAsync("ReceiveMessage", new
+                {
+                    chatId,
+                    message,
+                    senderId,
+                    senderName,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions
+                await Clients.Caller.SendAsync("MessageError", new { error = ex.Message });
+            }
         }
 
         public async Task StartTyping(int chatId, int userId, string userName)
