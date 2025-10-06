@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import React, { MouseEvent, useEffect, useState } from "react";
+import React, { MouseEvent, useEffect, useState, useRef } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -31,6 +31,8 @@ import { User } from "../models/User";
 import { getUserInfo, getUsers } from "../services/UserService";
 import { getMessages } from "../services/MessageService";
 import UserItem from "../components/UserItem";
+import { useSignalR } from "../hooks/useSignalR";
+import { ChatMessage } from "../services/signalRService";
 
 const defaultTheme = createTheme();
 const settings = ["Logout"];
@@ -46,9 +48,41 @@ export default function Chat() {
   const [users, setUsers] = useState<User[]>();
   const [token, setToken] = useState<string>("");
   const [contactSearch, setContactSearch] = useState<string>("");
+  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
+  const [typingUsers, setTypingUsers] = useState<Set<number>>(new Set());
   const location = useLocation();
   const navigate = useNavigate();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const channelSelectedRef = useRef<ChatModel | undefined>(channelSelected);
+  const currentChatIdRef = useRef<number | null>(null);
+
+  // Update ref when channelSelected changes
+  useEffect(() => {
+    channelSelectedRef.current = channelSelected;
+    currentChatIdRef.current = channelSelected ? parseInt(channelSelected.id) : null;
+  }, [channelSelected]);
+
+  // SignalR hook - manage all SignalR functionality here
+  const {
+    isConnected,
+    isConnecting,
+    error: signalRError,
+    connect,
+    joinChat,
+    leaveChat,
+    sendMessage: sendSignalRMessage,
+    onMessageReceived,
+    onUserOnline,
+    onUserOffline,
+    onUserStartedTyping,
+    onUserStoppedTyping,
+    startTyping,
+    stopTyping,
+  } = useSignalR({
+    baseUrl: 'http://localhost:5175',
+    token: token,
+    autoConnect: false
+  });
 
   function handleOpenUserMenu(event: React.MouseEvent<HTMLElement>) {
     setAnchorElUser(event.currentTarget);
@@ -107,6 +141,125 @@ export default function Chat() {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newChatId]);
+
+  // Setup SignalR event listeners FIRST (before connecting)
+  useEffect(() => {
+    if (!token) return;
+
+    console.log('Setting up SignalR event listeners...');
+
+    // Handle incoming messages
+    onMessageReceived((receivedMessage: ChatMessage) => {
+      console.log('Message received via SignalR:', receivedMessage);
+
+      // Create a new message object
+      const newMessage: MessageModel = {
+        id: Date.now().toString(), // Temporary ID
+        text: receivedMessage.message,
+        createdAt: new Date(receivedMessage.timestamp),
+        sender: {
+          id: receivedMessage.senderId.toString(),
+          name: receivedMessage.senderName,
+          email: '',
+          password: '',
+          color: '#000000'
+        },
+        isRead: false
+      };
+
+      // Update the chat with the new message
+      setChats(prevChats => {
+        const updatedChats = prevChats.map(chat => {
+          if (parseInt(chat.id) === receivedMessage.chatId) {
+            return {
+              ...chat,
+              messages: [...chat.messages, newMessage]
+            };
+          }
+          return chat;
+        });
+        return updatedChats;
+      });
+
+      // Update the selected channel if it matches
+      if (channelSelectedRef.current && parseInt(channelSelectedRef.current.id) === receivedMessage.chatId) {
+        setChannelSelected(prev => prev ? {
+          ...prev,
+          messages: [...prev.messages, newMessage]
+        } : prev);
+      }
+    });
+
+    // Handle user online status
+    onUserOnline((userStatus: { userId: number; userName: string }) => {
+      console.log('User came online:', userStatus);
+      setOnlineUsers(prev => new Set(prev).add(userStatus.userId));
+    });
+
+    // Handle user offline status
+    onUserOffline((userStatus: { userId: number; userName: string }) => {
+      console.log('User went offline:', userStatus);
+      setOnlineUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userStatus.userId);
+        return newSet;
+      });
+    });
+
+    // Handle typing started
+    onUserStartedTyping((typingUser: { chatId: number; userId: number; userName: string }) => {
+      console.log('User started typing:', typingUser);
+      if (currentChatIdRef.current === typingUser.chatId) {
+        setTypingUsers(prev => new Set(prev).add(typingUser.userId));
+      }
+    });
+
+    // Handle typing stopped
+    onUserStoppedTyping((typingUser: { chatId: number; userId: number; userName: string }) => {
+      console.log('User stopped typing:', typingUser);
+      setTypingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(typingUser.userId);
+        return newSet;
+      });
+    });
+
+    console.log('Event listeners registered, now connecting...');
+  }, [token, onMessageReceived, onUserOnline, onUserOffline, onUserStartedTyping, onUserStoppedTyping]);
+
+  // Connect to SignalR AFTER event listeners are set up
+  useEffect(() => {
+    if (token && !isConnected && !isConnecting) {
+      console.log('Connecting to SignalR...');
+      connect();
+    }
+  }, [token, isConnected, isConnecting, connect]);
+
+  // Join/leave chat rooms when channel selection changes
+  useEffect(() => {
+    if (isConnected && channelSelected && channelSelected.id !== "0") {
+      const chatId = parseInt(channelSelected.id);
+      console.log(`Joining chat ${chatId}`);
+      joinChat(chatId).catch((err: Error) => {
+        console.error('Failed to join chat:', err);
+      });
+
+      // Cleanup: leave chat when switching to another
+      return () => {
+        console.log(`Leaving chat ${chatId}`);
+        leaveChat(chatId).catch((err: Error) => {
+          console.error('Failed to leave chat:', err);
+        });
+      };
+    }
+  }, [isConnected, channelSelected, joinChat, leaveChat]);
+
+  // Display SignalR errors
+  useEffect(() => {
+    if (signalRError) {
+      handleErrorAlert(`SignalR Error: ${signalRError}`);
+    }
+  }, [signalRError]);
 
   function handleGetMessages(tokenJWT?: string | undefined) {
     getMessages(tokenJWT ?? token)
@@ -342,14 +495,20 @@ export default function Chat() {
                     new Date(b.createdAt).getTime() -
                     new Date(a.createdAt).getTime()
                 )
-                .map((chat) => (
-                  <ChannelItem
-                    key={chat.id}
-                    chat={chat}
-                    handleChannelItemClick={handleChannelItemClick}
-                    userId={user?.id ?? ""}
-                  />
-                ))}
+                .map((chat) => {
+                  const otherParticipant = chat.participants.find((p) => p.id !== user?.id);
+                  const isOnline = otherParticipant ? onlineUsers.has(parseInt(otherParticipant.id)) : false;
+
+                  return (
+                    <ChannelItem
+                      key={chat.id}
+                      chat={chat}
+                      handleChannelItemClick={handleChannelItemClick}
+                      userId={user?.id ?? ""}
+                      isOnline={isOnline}
+                    />
+                  );
+                })}
             {users && (
               <>
                 <Box
@@ -399,9 +558,14 @@ export default function Chat() {
               <Channel
                 chat={channelSelected}
                 userId={user.id}
+                userName={user.name}
                 handleErrorAlert={handleErrorAlert}
                 updateMessages={updateMessages}
                 token={token}
+                onSendMessage={sendSignalRMessage}
+                onStartTyping={startTyping}
+                onStopTyping={stopTyping}
+                typingUsers={typingUsers}
               />
             )}
           </Paper>
