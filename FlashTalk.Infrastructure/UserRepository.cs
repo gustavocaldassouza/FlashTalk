@@ -1,5 +1,5 @@
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Dapper;
 using FlashTalk.Domain;
 using Microsoft.Extensions.Configuration;

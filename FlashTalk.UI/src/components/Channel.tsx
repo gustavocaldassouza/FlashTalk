@@ -1,4 +1,4 @@
-import { Box, IconButton, InputBase, Stack, styled } from "@mui/material";
+import { Box, IconButton, InputBase, Stack, styled, Typography } from "@mui/material";
 import ChannelBar from "./ChannelBar";
 import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
@@ -9,7 +9,6 @@ import {
   getFileMessage,
   readMessagesByChat,
   sendFileMessage,
-  sendMessage,
 } from "../services/MessageService";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { Document as DocumentModel } from "../models/Document";
@@ -17,6 +16,7 @@ import { Document as DocumentModel } from "../models/Document";
 interface ChannelProps {
   chat: Chat;
   userId: string;
+  userName: string;
   handleErrorAlert: (message: string) => void;
   updateMessages: (
     chatId: string,
@@ -24,19 +24,29 @@ interface ChannelProps {
     chat?: Chat
   ) => void;
   token: string;
+  onSendMessage: (chatId: number, message: string, senderId: number, senderName: string) => Promise<void>;
+  onStartTyping: (chatId: number, userId: number, userName: string) => Promise<void>;
+  onStopTyping: (chatId: number, userId: number, userName: string) => Promise<void>;
+  typingUsers: Set<number>;
 }
 
 export default function Channel({
   chat,
   userId,
+  userName,
   handleErrorAlert,
   updateMessages,
   token,
+  onSendMessage,
+  onStartTyping,
+  onStopTyping,
+  typingUsers,
 }: ChannelProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(chat.messages);
   const [newChat, setNewChat] = useState<Chat>();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     readMessagesByChat(chat.id, token)
@@ -80,37 +90,77 @@ export default function Channel({
 
   useEffect(() => {
     setMessage("");
+    // Clean up typing timeout when changing chats
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
   }, [chat.id]);
 
-  function handleSendMessage(
+  // Handle typing indicator
+  async function handleInputChange(value: string) {
+    setMessage(value);
+
+    if (value.trim().length > 0) {
+      // Send typing started event
+      await onStartTyping(parseInt(chat.id), parseInt(userId), userName);
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Set timeout to send stop typing after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(async () => {
+        await onStopTyping(parseInt(chat.id), parseInt(userId), userName);
+        typingTimeoutRef.current = null;
+      }, 3000);
+    } else if (typingTimeoutRef.current) {
+      // If message is empty, stop typing indicator
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+      await onStopTyping(parseInt(chat.id), parseInt(userId), userName);
+    }
+  }
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  async function handleSendMessage(
     event: MouseEvent<HTMLButtonElement> | React.KeyboardEvent
   ) {
     event.preventDefault();
     if (message.trim() === "") return;
 
-    appendTextBasedMockMessage();
-
-    sendMessage(
-      message,
-      chat.participants.find((p) => p.id != userId)?.id ?? "",
-      token
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data: Chat) => {
-        removeMockMessage();
-        setNewMessages(data);
-      })
-      .catch((error) => {
-        removeMockMessage();
-        handleErrorAlert(error.message);
-      });
-
+    const messageToSend = message;
     setMessage("");
+
+    // Stop typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+    await onStopTyping(parseInt(chat.id), parseInt(userId), userName);
+
+    try {
+      // Send message via SignalR
+      await onSendMessage(
+        parseInt(chat.id),
+        messageToSend,
+        parseInt(userId),
+        userName
+      );
+    } catch (error) {
+      handleErrorAlert(error instanceof Error ? error.message : 'Failed to send message');
+      // Restore message if send failed
+      setMessage(messageToSend);
+    }
   }
 
   function setNewMessages(data?: Chat) {
@@ -121,27 +171,6 @@ export default function Channel({
     if (chat.id === "0") {
       setNewChat(data);
     }
-  }
-
-  function appendTextBasedMockMessage() {
-    const now = new Date();
-    const utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-    const mockMessage: MessageModel = {
-      id: "0",
-      createdAt: utc,
-      sender: {
-        id: userId,
-        name: "",
-        email: "",
-        password: "",
-        color: "",
-      },
-      isRead: false,
-      text: message,
-      loading: true,
-    };
-
-    setMessages([...messages, mockMessage as MessageModel]);
   }
 
   function appendFileBasedMockMessage(files: FileList) {
@@ -231,6 +260,11 @@ export default function Channel({
       });
   }
 
+  // Get typing users for this chat (excluding current user)
+  const typingUsersInChat = chat.participants
+    .filter((p) => p.id !== userId && typingUsers.has(parseInt(p.id)))
+    .map((p) => p.name);
+
   return (
     <Stack spacing={1}>
       <ChannelBar chat={chat} userId={userId}></ChannelBar>
@@ -252,6 +286,20 @@ export default function Channel({
               }
             />
           ))}
+        {typingUsersInChat.length > 0 && (
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontStyle: 'italic',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }}
+            >
+              {typingUsersInChat.join(', ')} {typingUsersInChat.length === 1 ? 'is' : 'are'} typing...
+            </Typography>
+          </Box>
+        )}
         <Box ref={messagesEndRef} />
       </Box>
       <Box
@@ -262,9 +310,9 @@ export default function Channel({
         <InputBase
           sx={{ ml: 1, flex: 1, width: "calc(100% - 60px)" }}
           placeholder="Type your message"
-          inputProps={{ "aria-label": "search google maps" }}
+          inputProps={{ "aria-label": "Type your message" }}
           value={message}
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={(event) => handleInputChange(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSendMessage(event);
@@ -284,7 +332,7 @@ export default function Channel({
         <IconButton
           type="button"
           sx={{ p: "10px" }}
-          aria-label="delete"
+          aria-label="send message"
           onClick={(event) => handleSendMessage(event)}
         >
           <SendIcon fontSize="small" />

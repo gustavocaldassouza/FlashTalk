@@ -1,7 +1,8 @@
 import { User } from "../models/User";
+import { getApiUrl } from "../config/api";
 
 export function getUsers(userName: string, token: string): Promise<Response> {
-  return fetch(`${import.meta.env.VITE_API_URL}/usersearch?name=${userName}`, {
+  return fetch(`${getApiUrl()}/UserSearch?name=${userName}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -9,7 +10,7 @@ export function getUsers(userName: string, token: string): Promise<Response> {
 }
 
 export function getUserInfo(token: string): Promise<Response> {
-  return fetch(`${import.meta.env.VITE_API_URL}/userinfo`, {
+  return fetch(`${getApiUrl()}/UserInfo`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -17,7 +18,7 @@ export function getUserInfo(token: string): Promise<Response> {
 }
 
 export function registerUser(user: User): Promise<Response> {
-  return fetch(`${import.meta.env.VITE_API_URL}/userregistration`, {
+  return fetch(`${getApiUrl()}/UserRegistration`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,7 +28,7 @@ export function registerUser(user: User): Promise<Response> {
 }
 
 export function authenticateUser(user: User): Promise<Response> {
-  return fetch(`${import.meta.env.VITE_API_URL}/userauthentication`, {
+  return fetch(`${getApiUrl()}/UserAuthentication`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

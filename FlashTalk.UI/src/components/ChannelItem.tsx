@@ -18,12 +18,14 @@ interface ChannelItemProps {
     event: MouseEvent<HTMLDivElement>,
     chatId: string
   ) => void;
+  isOnline?: boolean;
 }
 
 export default function ChannelItem({
   chat,
   userId,
   handleChannelItemClick,
+  isOnline = false,
 }: ChannelItemProps) {
   return (
     <>
@@ -33,14 +35,38 @@ export default function ChannelItem({
             onClick={(event) => handleChannelItemClick(event, chat.id)}
           >
             <ListItemAvatar>
-              <Avatar
+              <Badge
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                variant="dot"
                 sx={{
-                  backgroundColor: chat.participants.find((p) => p.id != userId)
-                    ?.color,
+                  '& .MuiBadge-badge': {
+                    backgroundColor: isOnline ? '#44b700' : 'transparent',
+                    color: isOnline ? '#44b700' : 'transparent',
+                    boxShadow: isOnline ? '0 0 0 2px #fff' : 'none',
+                    '&::after': isOnline ? {
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '50%',
+                      animation: 'ripple 1.2s infinite ease-in-out',
+                      border: '1px solid currentColor',
+                      content: '""',
+                    } : {},
+                  },
                 }}
               >
-                {chat.participants.find((p) => p.id != userId)?.name?.[0]}
-              </Avatar>
+                <Avatar
+                  sx={{
+                    backgroundColor: chat.participants.find((p) => p.id != userId)
+                      ?.color,
+                  }}
+                >
+                  {chat.participants.find((p) => p.id != userId)?.name?.[0]}
+                </Avatar>
+              </Badge>
             </ListItemAvatar>
             <ListItemText
               primary={chat.participants.find((p) => p.id != userId)?.name}
@@ -82,8 +108,8 @@ export default function ChannelItem({
                 badgeContent={
                   chat.messages.find((m) => m.sender.id != userId && !m.isRead)
                     ? chat.messages.filter(
-                        (m) => m.sender.id != userId && !m.isRead
-                      ).length
+                      (m) => m.sender.id != userId && !m.isRead
+                    ).length
                     : 0
                 }
                 color="primary"

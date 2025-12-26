@@ -18,14 +18,14 @@ namespace FlashTalk.Presentation
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
 
-      services.AddScoped<IUserRegistration, UserRegistration>();
-      services.AddScoped<IUserAuthentication, UserAuthentication>();
-      services.AddScoped<IUserSearch, UserSearch>();
-      services.AddScoped<IUserInfo, UserInfo>();
-      services.AddScoped<IMessageSending, MessageSending>();
-      services.AddScoped<IMessageReceiving, MessageReceiving>();
-      services.AddScoped<IMessageReading, MessageReading>();
-      services.AddScoped<IFileDownloading, FileDownloading>();
+            services.AddScoped<IUserRegistration, UserRegistration>();
+            services.AddScoped<IUserAuthentication, UserAuthentication>();
+            services.AddScoped<IUserSearch, UserSearch>();
+            services.AddScoped<IUserInfo, UserInfo>();
+            services.AddScoped<IMessageSending, MessageSending>();
+            services.AddScoped<IMessageReceiving, MessageReceiving>();
+            services.AddScoped<IMessageReading, MessageReading>();
+            services.AddScoped<IFileDownloading, FileDownloading>();
 
             return services;
         }
