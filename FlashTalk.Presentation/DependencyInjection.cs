@@ -8,8 +8,10 @@ using FlashTalk.Application.UseCases.UserAuthentication;
 using FlashTalk.Application.UseCases.UserInfo;
 using FlashTalk.Application.UseCases.UserRegistration;
 using FlashTalk.Application.UseCases.UserSearch;
+using FlashTalk.Application.UseCases.UserThemeSettings;
 using FlashTalk.Domain;
 using FlashTalk.Infrastructure;
+using FlashTalk.Presentation.UseCases.UserThemeSettings;
 
 namespace FlashTalk.Presentation
 {
@@ -19,6 +21,7 @@ namespace FlashTalk.Presentation
         {
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IUserThemeRepository, UserThemeRepository>();
 
             services.AddScoped<IUserRegistration, UserRegistration>();
             services.AddScoped<IUserAuthentication, UserAuthentication>();
@@ -30,6 +33,12 @@ namespace FlashTalk.Presentation
             services.AddScoped<IMessageEditing, MessageEditing>();
             services.AddScoped<IMessageDeleting, MessageDeleting>();
             services.AddScoped<IFileDownloading, FileDownloading>();
+
+            // Theme Settings
+            services.AddScoped<IGetUserThemePreferenceOutputPort, GetUserThemePreferencePresenter>();
+            services.AddScoped<IUpdateUserThemePreferenceOutputPort, UpdateUserThemePreferencePresenter>();
+            services.AddScoped<IGetUserThemePreference, GetUserThemePreference>();
+            services.AddScoped<IUpdateUserThemePreference, UpdateUserThemePreference>();
 
             return services;
         }

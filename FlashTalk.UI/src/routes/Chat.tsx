@@ -33,6 +33,7 @@ import { getMessages } from "../services/MessageService";
 import UserItem from "../components/UserItem";
 import { useSignalR } from "../hooks/useSignalR";
 import { ChatMessage } from "../services/signalRService";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
 
 const defaultTheme = createTheme();
 const settings = ["Logout"];
@@ -425,13 +426,16 @@ export default function Chat() {
                     FlashTalk
                   </Typography>
                 </Box>
-                <Tooltip TransitionComponent={Zoom} title={"Open Settings"}>
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar sx={{ backgroundColor: user?.color }}>
-                      {user?.name[0]}
-                    </Avatar>
-                  </IconButton>
-                </Tooltip>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <ThemeSwitcher />
+                  <Tooltip TransitionComponent={Zoom} title={"Open Settings"}>
+                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                      <Avatar sx={{ backgroundColor: user?.color }}>
+                        {user?.name[0]}
+                      </Avatar>
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Menu
                   sx={{ mt: "45px" }}
                   id="menu-appbar"

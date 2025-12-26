@@ -63,6 +63,17 @@ CREATE TABLE [dbo].participant
   FOREIGN KEY (user_id) REFERENCES userd(id)
 );
 
+CREATE TABLE [dbo].user_theme_preference
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  theme_mode VARCHAR(20) NOT NULL DEFAULT 'light',
+  font_size_scale VARCHAR(20) NOT NULL DEFAULT 'medium',
+  created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  updated_at DATETIME NOT NULL DEFAULT GETDATE(),
+  FOREIGN KEY (user_id) REFERENCES userd(id) ON DELETE CASCADE
+);
+
 INSERT INTO [dbo].userd (name, email, password, color) VALUES ('João', 'joaodasilva@email.com', '12345', '#3E4A89');
 INSERT INTO [dbo].userd (name, email, password, color) VALUES ('Maria', 'mariadasilva@email.com', '12345', '#6FBC43');
 INSERT INTO [dbo].userd (name, email, password, color) VALUES ('José', 'josedasilva@email.com', '12345', '#D81159');
@@ -91,3 +102,11 @@ INSERT INTO [dbo].participant (user_id, chat_id) VALUES (3, 2);
 
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (2, 3);
 INSERT INTO [dbo].participant (user_id, chat_id) VALUES (3, 3);
+
+-- Insert default theme preferences for all users
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (1, 'light', 'medium');
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (2, 'dark', 'medium');
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (3, 'light', 'large');
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (4, 'dark', 'small');
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (5, 'light', 'medium');
+INSERT INTO [dbo].user_theme_preference (user_id, theme_mode, font_size_scale) VALUES (6, 'dark', 'medium');
