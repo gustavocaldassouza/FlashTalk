@@ -11,7 +11,7 @@ CREATE TABLE [dbo].userd
   id INT IDENTITY(1,1) PRIMARY KEY,
   name VARCHAR(30) NOT NULL,
   email VARCHAR(60) NOT NULL,
-  password VARCHAR(30) NOT NULL,
+  password VARCHAR(255) NOT NULL,
   color VARCHAR(7) NOT NULL,
 );
 
