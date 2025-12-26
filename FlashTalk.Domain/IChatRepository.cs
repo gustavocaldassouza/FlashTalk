@@ -12,5 +12,10 @@ namespace FlashTalk.Domain
     IEnumerable<Chat> GetChatByUserId(int userId);
     Chat ReadChat(int chatId, int userId);
     FileStream? GetFileFromMessage(int messageId, string fileName);
+    bool UpdateMessage(int messageId, string newText, int senderId);
+    bool DeleteMessage(int messageId, int senderId);
+    Message GetMessageById(int messageId);
+    IEnumerable<MessageEdit> GetMessageEditHistory(int messageId);
+    int InsertMessageEdit(int messageId, string originalText);
   }
 }

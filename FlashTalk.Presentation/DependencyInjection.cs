@@ -1,4 +1,6 @@
 using FlashTalk.Application.UseCases.FileDownloading;
+using FlashTalk.Application.UseCases.MessageDeleting;
+using FlashTalk.Application.UseCases.MessageEditing;
 using FlashTalk.Application.UseCases.MessageReading;
 using FlashTalk.Application.UseCases.MessageReceiving;
 using FlashTalk.Application.UseCases.MessageSending;
@@ -25,6 +27,8 @@ namespace FlashTalk.Presentation
             services.AddScoped<IMessageSending, MessageSending>();
             services.AddScoped<IMessageReceiving, MessageReceiving>();
             services.AddScoped<IMessageReading, MessageReading>();
+            services.AddScoped<IMessageEditing, MessageEditing>();
+            services.AddScoped<IMessageDeleting, MessageDeleting>();
             services.AddScoped<IFileDownloading, FileDownloading>();
 
             return services;

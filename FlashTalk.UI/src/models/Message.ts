@@ -9,4 +9,14 @@ export interface Message {
   loading?: boolean;
   isRead: boolean;
   documents?: DocumentModel[];
+  editedAt?: Date;
+  isDeleted?: boolean;
+  editHistory?: MessageEdit[];
+}
+
+export interface MessageEdit {
+  id: string;
+  messageId: string;
+  originalText: string;
+  editedAt: Date;
 }

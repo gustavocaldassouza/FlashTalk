@@ -28,7 +28,7 @@ namespace FlashTalk.Presentation.Hubs
         {
             var userId = GetUserId();
             var userName = GetUserName();
-            
+
             if (userId > 0)
             {
                 var connection = new UserConnection
@@ -66,10 +66,10 @@ namespace FlashTalk.Presentation.Hubs
             {
                 var groupName = $"Chat_{chatId}";
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-                
-                _chatGroups.AddOrUpdate(chatId, 
+
+                _chatGroups.AddOrUpdate(chatId,
                     new HashSet<string> { Context.ConnectionId },
-                    (key, existing) => 
+                    (key, existing) =>
                     {
                         existing.Add(Context.ConnectionId);
                         return existing;
@@ -88,7 +88,7 @@ namespace FlashTalk.Presentation.Hubs
             {
                 var groupName = $"Chat_{chatId}";
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-                
+
                 if (_chatGroups.TryGetValue(chatId, out var connections))
                 {
                     connections.Remove(Context.ConnectionId);
@@ -143,12 +143,51 @@ namespace FlashTalk.Presentation.Hubs
                 .SendAsync("UserStoppedTyping", new { chatId, userId, userName });
         }
 
+        public async Task EditMessage(int chatId, int messageId, string newText, int senderId, string senderName)
+        {
+            try
+            {
+                var groupName = $"Chat_{chatId}";
+                await Clients.Group(groupName).SendAsync("MessageEdited", new
+                {
+                    messageId,
+                    text = newText,
+                    senderId,
+                    senderName,
+                    editedAt = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("MessageError", new { error = ex.Message });
+            }
+        }
+
+        public async Task DeleteMessage(int chatId, int messageId, int senderId, string senderName)
+        {
+            try
+            {
+                var groupName = $"Chat_{chatId}";
+                await Clients.Group(groupName).SendAsync("MessageDeleted", new
+                {
+                    messageId,
+                    isDeleted = true,
+                    senderId,
+                    senderName
+                });
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("MessageError", new { error = ex.Message });
+            }
+        }
+
         public async Task GetOnlineUsers()
         {
             var onlineUsers = _connections.Values
                 .Select(c => new { c.UserId, c.UserName, c.LastSeen })
                 .ToList();
-            
+
             await Clients.Caller.SendAsync("OnlineUsers", onlineUsers);
         }
 

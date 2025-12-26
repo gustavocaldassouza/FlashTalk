@@ -10,6 +10,9 @@ namespace FlashTalk.Domain
     public User Sender { get; set; }
     public bool IsRead { get; set; }
     public IEnumerable<Document> Documents { get; set; }
+    public DateTime? EditedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public IEnumerable<MessageEdit> EditHistory { get; set; }
 
     public Message(int id, DateTime createdAt, string text, User sender, bool isRead, IEnumerable<Document> documents)
     {
@@ -19,6 +22,9 @@ namespace FlashTalk.Domain
       Sender = sender;
       IsRead = isRead;
       Documents = documents;
+      EditedAt = null;
+      IsDeleted = false;
+      EditHistory = new List<MessageEdit>();
     }
 
     public Message(DateTime createdAt, string text, User sender, bool isRead, IEnumerable<Document> documents)
@@ -28,6 +34,9 @@ namespace FlashTalk.Domain
       Sender = sender;
       IsRead = isRead;
       Documents = documents;
+      EditedAt = null;
+      IsDeleted = false;
+      EditHistory = new List<MessageEdit>();
     }
 
     public Message()
@@ -36,6 +45,9 @@ namespace FlashTalk.Domain
       Sender = new User();
       IsRead = false;
       Documents = new List<Document>();
+      EditedAt = null;
+      IsDeleted = false;
+      EditHistory = new List<MessageEdit>();
     }
   }
 }
