@@ -1,7 +1,7 @@
-import.meta.env.VITE_API_URL;
+import { getApiUrl } from "../config/api";
 
 export function getMessages(token: string): Promise<Response> {
-  const url = `${import.meta.env.VITE_API_URL}/MessageReceiving`;
+  const url = `${getApiUrl()}/MessageReceiving`;
   return fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -14,7 +14,7 @@ export function sendMessage(
   receiverId: string,
   token: string
 ): Promise<Response> {
-  const url = `${import.meta.env.VITE_API_URL}/MessageSending/`;
+  const url = `${getApiUrl()}/MessageSending/`;
   const body = JSON.stringify({ message, receiverId });
   return fetch(url, {
     method: "POST",
@@ -30,7 +30,7 @@ export function readMessagesByChat(
   chatId: string,
   token: string
 ): Promise<Response> {
-  const url = `${import.meta.env.VITE_API_URL}/MessageReading/${chatId}`;
+  const url = `${getApiUrl()}/MessageReading/${chatId}`;
   return fetch(url, {
     method: "PUT",
     headers: {
@@ -44,7 +44,7 @@ export function sendFileMessage(
   receiverId: string,
   token: string
 ) {
-  const url = `${import.meta.env.VITE_API_URL}/MessageSending/file/`;
+  const url = `${getApiUrl()}/MessageSending/file/`;
   const formData = new FormData();
   for (let i = 0; i < files.length; i++) {
     formData.append("files", files[i]);
@@ -65,7 +65,7 @@ export function getFileMessage(
   messageId: string,
   fileName: string
 ): Promise<Response> {
-  const url = `${import.meta.env.VITE_API_URL
+  const url = `${getApiUrl()
     }/FileDownloading/${messageId}/files/${fileName}`;
   return fetch(url, {
     headers: {

@@ -45,7 +45,7 @@ namespace FlashTalk.Presentation
             var fillScript = File.ReadAllText(fillScriptPath);
             connection.Execute(fillScript);
           }
-          
+
           Console.WriteLine("Database tables created and populated successfully!");
           break;
         }

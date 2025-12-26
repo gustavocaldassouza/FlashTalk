@@ -20,11 +20,11 @@ namespace FlashTalk.Presentation
                 // attach user to context on successful jwt validation
                 var user = userRepository.GetUserInfo(userId.Value);
                 context.Items["User"] = user;
-                
+
                 // Set up the user principal for authorization
                 var claims = new[]
                 {
-                    new System.Security.Claims.Claim("id", userId.Value.ToString())
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, userId.Value.ToString())
                 };
                 var identity = new System.Security.Claims.ClaimsIdentity(claims, "jwt");
                 context.User = new System.Security.Claims.ClaimsPrincipal(identity);

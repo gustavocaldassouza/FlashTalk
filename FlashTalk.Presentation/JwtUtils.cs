@@ -26,7 +26,7 @@ namespace FlashTalk.Presentation
       var key = Encoding.ASCII.GetBytes(_appSettings.Secret!);
       var tokenDescriptor = new SecurityTokenDescriptor
       {
-        Subject = new ClaimsIdentity(new[] { 
+        Subject = new ClaimsIdentity(new[] {
           new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
           new Claim(ClaimTypes.Name, user.Name ?? "Unknown User")
         }),
