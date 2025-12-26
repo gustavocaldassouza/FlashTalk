@@ -232,6 +232,14 @@ export class SignalRService {
         this.addEventHandler('ChatParticipants', callback as EventCallback);
     }
 
+    public onMessageEdited(callback: (data: { messageId: number; text: string; editedAt: Date; senderId: number; senderName: string }) => void): void {
+        this.addEventHandler('MessageEdited', callback as EventCallback);
+    }
+
+    public onMessageDeleted(callback: (data: { messageId: number; isDeleted: boolean; senderId: number; senderName: string }) => void): void {
+        this.addEventHandler('MessageDeleted', callback as EventCallback);
+    }
+
     private addEventHandler(eventName: string, callback: EventCallback): void {
         // If connection already exists and is connected, register immediately
         if (this.connection?.state === signalR.HubConnectionState.Connected) {

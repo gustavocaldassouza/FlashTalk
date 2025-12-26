@@ -347,5 +347,182 @@ namespace FlashTalk.Infrastructure
         return null;
       }
     }
+
+    public bool UpdateMessage(int messageId, string newText, int senderId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        // First, check if the message exists and belongs to the sender
+        string checkQuery = @"SELECT ID, SENDER_ID, CREATED_AT, TEXT_MESSAGE FROM MESSAGE WHERE ID = @MessageId;";
+        var checkParams = new { MessageId = messageId };
+        var message = connection.QueryFirstOrDefault<dynamic>(checkQuery, checkParams);
+
+        if (message == null)
+        {
+          return false;
+        }
+
+        int msgSenderId = message.SENDER_ID;
+        if (msgSenderId != senderId)
+        {
+          return false;
+        }
+
+        // Check if message was sent within the last 15 minutes (edit time limit)
+        DateTime createdAt = message.CREATED_AT;
+        if (DateTime.UtcNow.Subtract(createdAt).TotalMinutes > 15)
+        {
+          return false; // Edit time limit exceeded
+        }
+
+        // Save the original text to edit history
+        string insertEditQuery = @"INSERT INTO MESSAGE_EDIT (message_id, original_text, edited_at) 
+                                   VALUES (@MessageId, @OriginalText, @EditedAt);";
+        string originalText = message.TEXT_MESSAGE;
+        var editParams = new { MessageId = messageId, OriginalText = originalText, EditedAt = DateTime.UtcNow };
+        connection.Execute(insertEditQuery, editParams);
+
+        // Update the message text and set EditedAt timestamp
+        string updateQuery = @"UPDATE MESSAGE 
+                              SET TEXT_MESSAGE = @NewText, EDITED_AT = @EditedAt 
+                              WHERE ID = @MessageId;";
+        var updateParams = new { NewText = newText, EditedAt = DateTime.UtcNow, MessageId = messageId };
+        int rowsAffected = connection.Execute(updateQuery, updateParams);
+
+        return rowsAffected > 0;
+      }
+    }
+
+    public bool DeleteMessage(int messageId, int senderId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        // First, check if the message exists and belongs to the sender
+        string checkQuery = @"SELECT ID, SENDER_ID FROM MESSAGE WHERE ID = @MessageId;";
+        var checkParams = new { MessageId = messageId };
+        var message = connection.QueryFirstOrDefault<dynamic>(checkQuery, checkParams);
+
+        if (message == null)
+        {
+          return false;
+        }
+
+        int msgSenderId = message.SENDER_ID;
+        if (msgSenderId != senderId)
+        {
+          return false;
+        }
+
+        // Mark the message as deleted by clearing text and setting IsDeleted flag
+        string deleteQuery = @"UPDATE MESSAGE 
+                              SET IS_DELETED = 1, TEXT_MESSAGE = '[Deleted]' 
+                              WHERE ID = @MessageId;";
+        var deleteParams = new { MessageId = messageId };
+        int rowsAffected = connection.Execute(deleteQuery, deleteParams);
+
+        return rowsAffected > 0;
+      }
+    }
+
+    public Message GetMessageById(int messageId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"SELECT MESSAGE.ID MESSAGE_ID
+                              , MESSAGE.CREATED_AT MESSAGE_CREATED_AT
+                              , MESSAGE.TEXT_MESSAGE MESSAGE_TEXT
+                              , MESSAGE.IS_READ MESSAGE_IS_READ
+                              , MESSAGE.EDITED_AT MESSAGE_EDITED_AT
+                              , MESSAGE.IS_DELETED MESSAGE_IS_DELETED
+                              , SENDER.ID SENDER_ID
+                              , SENDER.NAME SENDER_NAME
+                              , SENDER.EMAIL SENDER_EMAIL
+                           FROM MESSAGE
+                           JOIN USERD SENDER ON MESSAGE.SENDER_ID = SENDER.ID
+                          WHERE MESSAGE.ID = @MessageId;";
+        var parameters = new { MessageId = messageId };
+
+        var result = connection.QueryFirstOrDefault(query, parameters);
+
+        if (result == null)
+        {
+          return new Message();
+        }
+
+        var message = new Message
+        {
+          Id = result.MESSAGE_ID,
+          CreatedAt = result.MESSAGE_CREATED_AT,
+          Text = result.MESSAGE_TEXT,
+          IsRead = result.MESSAGE_IS_READ,
+          EditedAt = result.MESSAGE_EDITED_AT,
+          IsDeleted = result.MESSAGE_IS_DELETED,
+          Sender = new User
+          {
+            Id = result.SENDER_ID,
+            Name = result.SENDER_NAME,
+            Email = result.SENDER_EMAIL
+          }
+        };
+
+        // Retrieve edit history
+        message.EditHistory = RetrieveMessageEditHistory(messageId);
+        // Retrieve documents
+        message.Documents = RetrieveDocuments(messageId);
+
+        return message;
+      }
+    }
+
+    public IEnumerable<MessageEdit> GetMessageEditHistory(int messageId)
+    {
+      return RetrieveMessageEditHistory(messageId);
+    }
+
+    private IEnumerable<MessageEdit> RetrieveMessageEditHistory(int messageId)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"SELECT ID, MESSAGE_ID, ORIGINAL_TEXT, EDITED_AT 
+                       FROM MESSAGE_EDIT 
+                       WHERE MESSAGE_ID = @MessageId 
+                       ORDER BY EDITED_AT DESC;";
+        var parameters = new { MessageId = messageId };
+
+        var edits = connection.Query(query, parameters)
+                      .Select(row => new MessageEdit
+                      {
+                        Id = row.ID,
+                        MessageId = row.MESSAGE_ID,
+                        OriginalText = row.ORIGINAL_TEXT,
+                        EditedAt = row.EDITED_AT
+                      }).ToList();
+
+        return edits;
+      }
+    }
+
+    public int InsertMessageEdit(int messageId, string originalText)
+    {
+      using (IDbConnection connection = new SqlConnection(_connectionString))
+      {
+        connection.Open();
+
+        string query = @"INSERT INTO MESSAGE_EDIT (message_id, original_text, edited_at) 
+                       OUTPUT INSERTED.id
+                       VALUES (@MessageId, @OriginalText, @EditedAt);";
+        var parameters = new { MessageId = messageId, OriginalText = originalText, EditedAt = DateTime.UtcNow };
+
+        return connection.ExecuteScalar<int>(query, parameters);
+      }
+    }
   }
 }

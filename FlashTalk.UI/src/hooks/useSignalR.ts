@@ -27,6 +27,8 @@ interface UseSignalRReturn {
     onChatParticipantsReceived: (callback: (data: { chatId: number; participants: ChatParticipant[] }) => void) => void;
     onUserStartedTyping: (callback: (typingUser: TypingUser) => void) => void;
     onUserStoppedTyping: (callback: (typingUser: TypingUser) => void) => void;
+    onMessageEdited: (callback: (data: { messageId: number; text: string; editedAt: Date; senderId: number; senderName: string }) => void) => void;
+    onMessageDeleted: (callback: (data: { messageId: number; isDeleted: boolean; senderId: number; senderName: string }) => void) => void;
 }
 
 export function useSignalR({ baseUrl, token, autoConnect = true }: UseSignalROptions): UseSignalRReturn {
@@ -180,6 +182,18 @@ export function useSignalR({ baseUrl, token, autoConnect = true }: UseSignalROpt
         }
     }, []);
 
+    const onMessageEdited = useCallback((callback: (data: { messageId: number; text: string; editedAt: Date; senderId: number; senderName: string }) => void) => {
+        if (serviceRef.current) {
+            serviceRef.current.onMessageEdited(callback);
+        }
+    }, []);
+
+    const onMessageDeleted = useCallback((callback: (data: { messageId: number; isDeleted: boolean; senderId: number; senderName: string }) => void) => {
+        if (serviceRef.current) {
+            serviceRef.current.onMessageDeleted(callback);
+        }
+    }, []);
+
     // Auto-connect on mount if enabled
     useEffect(() => {
         if (autoConnect && token && baseUrl && !isConnected && !isConnecting) {
@@ -216,6 +230,8 @@ export function useSignalR({ baseUrl, token, autoConnect = true }: UseSignalROpt
         onChatParticipantsReceived,
         onUserStartedTyping,
         onUserStoppedTyping,
+        onMessageEdited,
+        onMessageDeleted,
     };
 }
 

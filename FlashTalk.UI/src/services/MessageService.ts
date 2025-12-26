@@ -39,6 +39,36 @@ export function readMessagesByChat(
   });
 }
 
+export function editMessage(
+  messageId: string,
+  newText: string,
+  token: string
+): Promise<Response> {
+  const url = `${getApiUrl()}/MessageEditing/${messageId}`;
+  const body = JSON.stringify({ text: newText });
+  return fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+  });
+}
+
+export function deleteMessage(
+  messageId: string,
+  token: string
+): Promise<Response> {
+  const url = `${getApiUrl()}/MessageDeleting/${messageId}`;
+  return fetch(url, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
 export function sendFileMessage(
   files: FileList,
   receiverId: string,

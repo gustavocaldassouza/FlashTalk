@@ -1,4 +1,4 @@
-import { Box, IconButton, InputBase, Stack, styled, Typography } from "@mui/material";
+import { Box, IconButton, InputBase, Stack, styled, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import ChannelBar from "./ChannelBar";
 import { Chat } from "../models/Chat";
 import SendIcon from "@mui/icons-material/Send";
@@ -9,6 +9,8 @@ import {
   getFileMessage,
   readMessagesByChat,
   sendFileMessage,
+  editMessage,
+  deleteMessage,
 } from "../services/MessageService";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import { Document as DocumentModel } from "../models/Document";
@@ -47,6 +49,9 @@ export default function Channel({
   const [newChat, setNewChat] = useState<Chat>();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     readMessagesByChat(chat.id, token)
@@ -260,6 +265,66 @@ export default function Channel({
       });
   }
 
+  function handleEditMessage(messageId: string) {
+    const msg = messages.find((m) => m.id === messageId);
+    if (msg) {
+      setEditingMessageId(messageId);
+      setEditingText(msg.text);
+      setEditDialogOpen(true);
+    }
+  }
+
+  function handleSaveEdit() {
+    if (!editingMessageId || !editingText.trim()) return;
+
+    editMessage(editingMessageId, editingText, token)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Update the message in the local state
+        const updatedMessages = messages.map((m) =>
+          m.id === editingMessageId
+            ? { ...m, text: editingText, editedAt: new Date() }
+            : m
+        );
+        setMessages(updatedMessages);
+        setEditDialogOpen(false);
+        setEditingMessageId(null);
+        setEditingText("");
+      })
+      .catch((error) => {
+        handleErrorAlert(error.message);
+      });
+  }
+
+  function handleDeleteMessage(messageId: string) {
+    if (window.confirm("Are you sure you want to delete this message?")) {
+      deleteMessage(messageId, token)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Update the message in the local state
+          const updatedMessages = messages.map((m) =>
+            m.id === messageId
+              ? { ...m, text: "[Deleted]", isDeleted: true }
+              : m
+          );
+          setMessages(updatedMessages);
+        })
+        .catch((error) => {
+          handleErrorAlert(error.message);
+        });
+    }
+  }
+
   // Get typing users for this chat (excluding current user)
   const typingUsersInChat = chat.participants
     .filter((p) => p.id !== userId && typingUsers.has(parseInt(p.id)))
@@ -284,6 +349,8 @@ export default function Channel({
               handleFileClick={(file: DocumentModel) =>
                 handleFileClick(file, message.id)
               }
+              onEdit={handleEditMessage}
+              onDelete={handleDeleteMessage}
             />
           ))}
         {typingUsersInChat.length > 0 && (
@@ -338,6 +405,33 @@ export default function Channel({
           <SendIcon fontSize="small" />
         </IconButton>
       </Box>
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Message</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Message"
+            type="text"
+            fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            value={editingText}
+            onChange={(e) => setEditingText(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            You can edit messages within 15 minutes of sending.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleSaveEdit} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 }

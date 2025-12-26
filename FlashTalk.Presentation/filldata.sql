@@ -32,6 +32,8 @@ CREATE TABLE [dbo].message
   text_message VARCHAR(255) NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE(),
   is_read BIT NOT NULL DEFAULT 0,
+  edited_at DATETIME NULL,
+  is_deleted BIT NOT NULL DEFAULT 0,
   FOREIGN KEY (chat_id) REFERENCES chat(id),
   FOREIGN KEY (sender_id) REFERENCES userd(id)
 );
@@ -42,6 +44,14 @@ CREATE TABLE [dbo].document (
   file_path VARCHAR(255) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE(),
   FOREIGN KEY (message_id) REFERENCES message(id)
+);
+
+CREATE TABLE [dbo].message_edit (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  message_id INT NOT NULL,
+  original_text NVARCHAR(MAX) NOT NULL,
+  edited_at DATETIME NOT NULL DEFAULT GETUTCDATE(),
+  FOREIGN KEY (message_id) REFERENCES message(id) ON DELETE CASCADE
 );
 
 CREATE TABLE [dbo].participant
