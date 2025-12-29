@@ -1,5 +1,7 @@
 # FlashTalk
 
+> **⚠️ Note**: This project is a case study and will not receive further updates.
+
 A modern real-time messaging application built with .NET 8 Web API and React with TypeScript. FlashTalk provides instant messaging capabilities with user authentication, file sharing, and a clean, responsive user interface.
 
 ## 🚀 Features
